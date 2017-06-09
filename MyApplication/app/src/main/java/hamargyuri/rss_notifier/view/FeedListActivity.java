@@ -12,35 +12,32 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.greenrobot.greendao.database.Database;
 
 import java.util.Date;
 
 import hamargyuri.rss_notifier.R;
-import hamargyuri.rss_notifier.model.DaoMaster;
+import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
 import hamargyuri.rss_notifier.model.FeedItem;
+import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
+
 public class FeedListActivity extends AppCompatActivity {
-    private static final String TEMP_RSS_TITLE = "upwork"; //TODO: remove
-    private static final String DATABASE = "RSS feeds";
     private SwipeRefreshLayout feedSwipeRefresh;
-    private DaoSession session;
+    private DaoSession session = RSSNotifierApp.getSession();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_list);
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, DATABASE);
-        Database db = helper.getWritableDb();
-        session = new DaoMaster(db).newSession();
         fetchAndRefreshFeed();
         feedSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.feed_swipe_refresh);
         feedSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -103,7 +100,17 @@ public class FeedListActivity extends AppCompatActivity {
         Callback<RSSFeed> callback = new Callback<RSSFeed>() {
             @Override
             public void onResponse(Call<RSSFeed> call, Response<RSSFeed> response) {
-                FeedItem latestItem = response.body().getChannel().getItems().get(0);
+                RSSFeed rssFeed = response.body();
+                if (rssFeed == null) {
+                    Log.d("fetching body", "body is null");
+                    return;
+                }
+                RSSChannel channel = rssFeed.getChannel();
+                if (channel == null) {
+                    Log.d("fetching channel", "channel is null");
+                    return;
+                }
+                FeedItem latestItem = channel.getItems().get(0);
                 refreshLatestFeedItem(latestItem);
             }
 
@@ -116,6 +123,7 @@ public class FeedListActivity extends AppCompatActivity {
         call.enqueue(callback);
     }
 
+    //TODO: dynamic, updatable, etc.
     public void sendNotification(String jobDate) {
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
                 new NotificationCompat.Builder(this)
