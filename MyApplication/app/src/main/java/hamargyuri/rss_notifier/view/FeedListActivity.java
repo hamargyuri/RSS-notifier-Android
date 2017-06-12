@@ -20,7 +20,7 @@ import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
-import hamargyuri.rss_notifier.model.FeedItem;
+import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
@@ -56,7 +56,7 @@ public class FeedListActivity extends AppCompatActivity {
         Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
         if (feed == null) {
             feed = new Feed();
-            feed.setTitle("upwork");
+            feed.setTitle(TEMP_RSS_TITLE);
         }
         feed.setUrl(feedUrl);
         feedDao.save(feed);
@@ -66,9 +66,9 @@ public class FeedListActivity extends AppCompatActivity {
         fetchAndRefreshFeed();
     }
 
-    private void refreshLatestFeedItem(FeedItem feedItem) {
+    private void refreshLatestFeedItem(RSSItem rssItem) {
         TextView date = (TextView) findViewById(R.id.latest_feed_date);
-        Date latestItemDate = feedItem.getParsedDate();
+        Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
         Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
@@ -110,7 +110,7 @@ public class FeedListActivity extends AppCompatActivity {
                     Log.d("fetching channel", "channel is null");
                     return;
                 }
-                FeedItem latestItem = channel.getItems().get(0);
+                RSSItem latestItem = channel.getItems().get(0);
                 refreshLatestFeedItem(latestItem);
             }
 

@@ -4,15 +4,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,11 +18,10 @@ import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
-import hamargyuri.rss_notifier.model.FeedItem;
+import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
-import hamargyuri.rss_notifier.view.FeedListActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,8 +55,6 @@ public class NewFeedNotifierService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-
-
     //TODO: dynamic, updatable, etc.
     public void sendNotification(String jobDate) {
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
@@ -77,8 +70,8 @@ public class NewFeedNotifierService extends Service {
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
-    private void refreshLatestFeedItem(FeedItem feedItem) {
-        Date latestItemDate = feedItem.getParsedDate();
+    private void refreshLatestFeedItem(RSSItem rssItem) {
+        Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
         Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
@@ -118,7 +111,7 @@ public class NewFeedNotifierService extends Service {
                     Log.d("fetching channel", "channel is null");
                     return;
                 }
-                FeedItem latestItem = channel.getItems().get(0);
+                RSSItem latestItem = channel.getItems().get(0);
                 refreshLatestFeedItem(latestItem);
             }
 

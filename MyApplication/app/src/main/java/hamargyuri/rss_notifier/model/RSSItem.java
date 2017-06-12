@@ -13,7 +13,7 @@ import java.util.Date;
  */
 
 @Root(name = "item", strict = false)
-public class FeedItem {
+public class RSSItem {
 
     @Element(name = "title", data = true)
     private String title;

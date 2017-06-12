@@ -19,9 +19,9 @@ public class RSSChannel {
     private String link;
 
     @ElementList(name = "item", inline = true)
-    private List<FeedItem> items;
+    private List<RSSItem> items;
 
-    public List<FeedItem> getItems() {
+    public List<RSSItem> getItems() {
         return items;
     }
 }
