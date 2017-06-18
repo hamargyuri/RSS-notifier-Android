@@ -1,5 +1,7 @@
 package hamargyuri.rss_notifier.view;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -8,17 +10,22 @@ import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
+import hamargyuri.rss_notifier.model.FeedAdapter;
 import hamargyuri.rss_notifier.model.FeedDao;
 import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
@@ -46,6 +53,32 @@ public class FeedListActivity extends AppCompatActivity {
                 fetchAndRefreshFeed();
             }
         });
+
+        ArrayList<Feed> feeds = getAllFeeds();
+        for (int i = 0; i < 20; i++) {
+            feeds.add(feeds.get(0));
+            //TODO: remove when multiple feeds can be saved in database
+        }
+
+        final ListView listView = (ListView) findViewById(R.id.feed_list);
+        listView.setAdapter(new FeedAdapter(this,R.id.feed_list,feeds));
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition =
+                        (listView == null || listView.getChildCount() == 0) ?
+                                0 : listView.getChildAt(0).getTop();
+                SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.feed_swipe_refresh);
+                swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
+
     }
 
     public void saveFeed(View view) {
@@ -80,7 +113,7 @@ public class FeedListActivity extends AppCompatActivity {
             sendNotification(feed.getLatestItemDate().toString());
         }
 
-        date.setText(latestItemDate.toString());
+//        date.setText(latestItemDate.toString());
         session.clear();
         feedSwipeRefresh.setRefreshing(false);
     }
@@ -91,7 +124,6 @@ public class FeedListActivity extends AppCompatActivity {
         if (feed == null) {
             return;
         }
-
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
         session.clear();
@@ -136,5 +168,12 @@ public class FeedListActivity extends AppCompatActivity {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notificationId, notificationBuilder.build());
+    }
+
+    public ArrayList<Feed> getAllFeeds(){
+        FeedDao feedDao = session.getFeedDao();
+        ArrayList<Feed> feeds = new ArrayList<Feed>(feedDao.loadAll());
+        session.clear();
+        return feeds;
     }
 }
