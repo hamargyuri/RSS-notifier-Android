@@ -1,7 +1,5 @@
 package hamargyuri.rss_notifier.view;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Intent;
@@ -12,10 +10,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -26,7 +21,7 @@ import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
-import hamargyuri.rss_notifier.model.FeedAdapter;
+import hamargyuri.rss_notifier.adapter.FeedAdapter;
 import hamargyuri.rss_notifier.model.FeedDao;
 import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
@@ -41,7 +36,6 @@ import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
 public class FeedListActivity extends AppCompatActivity {
     private SwipeRefreshLayout feedSwipeRefresh;
     private DaoSession session = RSSNotifierApp.getSession();
-    private ArrayList<Feed> feeds = new ArrayList<>();
     private FeedAdapter adapter;
 
     @Override
@@ -57,8 +51,7 @@ public class FeedListActivity extends AppCompatActivity {
             }
         });
 
-        feeds = getAllFeeds();
-        adapter = new FeedAdapter(this,R.id.feed_list,feeds);
+        adapter = new FeedAdapter(this,R.id.feed_list,getAllFeeds());
 
         final ListView listView = (ListView) findViewById(R.id.feed_list);
         listView.setAdapter(adapter);
@@ -98,7 +91,7 @@ public class FeedListActivity extends AppCompatActivity {
             sendNotification(feed.getLatestItemDate().toString());
         }
 
-        refreshListView();
+        adapter.updateFeeds(getAllFeeds());
         session.clear();
         feedSwipeRefresh.setRefreshing(false);
     }
@@ -160,10 +153,5 @@ public class FeedListActivity extends AppCompatActivity {
         ArrayList<Feed> feeds = new ArrayList<Feed>(feedDao.loadAll());
         session.clear();
         return feeds;
-    }
-
-    public void refreshListView() {
-        feeds = getAllFeeds();
-        adapter.notifyDataSetChanged();
     }
 }
