@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +41,8 @@ import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
 public class FeedListActivity extends AppCompatActivity {
     private SwipeRefreshLayout feedSwipeRefresh;
     private DaoSession session = RSSNotifierApp.getSession();
+    private ArrayList<Feed> feeds = new ArrayList<>();
+    private FeedAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +57,11 @@ public class FeedListActivity extends AppCompatActivity {
             }
         });
 
-        ArrayList<Feed> feeds = getAllFeeds();
-        for (int i = 0; i < 20; i++) {
-            feeds.add(feeds.get(0));
-            //TODO: remove when multiple feeds can be saved in database
-        }
+        feeds = getAllFeeds();
+        adapter = new FeedAdapter(this,R.id.feed_list,feeds);
 
         final ListView listView = (ListView) findViewById(R.id.feed_list);
-        listView.setAdapter(new FeedAdapter(this,R.id.feed_list,feeds));
+        listView.setAdapter(adapter);
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -74,33 +74,18 @@ public class FeedListActivity extends AppCompatActivity {
                 int topRowVerticalPosition =
                         (listView == null || listView.getChildCount() == 0) ?
                                 0 : listView.getChildAt(0).getTop();
-                SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.feed_swipe_refresh);
-                swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+                feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
             }
         });
 
     }
 
-    public void saveFeed(View view) {
-        EditText feedUrlInput = (EditText) findViewById(R.id.feedUrl);
-        final String feedUrl = feedUrlInput.getText().toString();
-
-        FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
-        if (feed == null) {
-            feed = new Feed();
-            feed.setTitle(TEMP_RSS_TITLE);
-        }
-        feed.setUrl(feedUrl);
-        feedDao.save(feed);
-        session.clear();
-
-        Toast.makeText(this, "feed saved", Toast.LENGTH_LONG).show();
-        fetchAndRefreshFeed();
+    public void addNewFeed(View view){
+        Intent intent = new Intent(this, AddNewFeed.class);
+        startActivity(intent);
     }
 
     private void refreshLatestFeedItem(RSSItem rssItem) {
-        TextView date = (TextView) findViewById(R.id.latest_feed_date);
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
@@ -113,7 +98,7 @@ public class FeedListActivity extends AppCompatActivity {
             sendNotification(feed.getLatestItemDate().toString());
         }
 
-//        date.setText(latestItemDate.toString());
+        refreshListView();
         session.clear();
         feedSwipeRefresh.setRefreshing(false);
     }
@@ -175,5 +160,10 @@ public class FeedListActivity extends AppCompatActivity {
         ArrayList<Feed> feeds = new ArrayList<Feed>(feedDao.loadAll());
         session.clear();
         return feeds;
+    }
+
+    public void refreshListView() {
+        feeds = getAllFeeds();
+        adapter.notifyDataSetChanged();
     }
 }
