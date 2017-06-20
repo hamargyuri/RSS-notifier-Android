@@ -98,11 +98,16 @@ public class FeedListActivity extends AppCompatActivity {
     }
 
     private void fetchAndRefreshFeed() {
-        FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
-        if (feed == null) {
+        ArrayList<Feed> feeds = getAllFeeds();
+        if (feeds == null) {
             return;
         }
+        for (Feed feed : feeds) {
+            fetch(feed);
+        }
+    }
+
+    public void fetch(Feed feed) {
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
         session.clear();
@@ -128,7 +133,6 @@ public class FeedListActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<RSSFeed> call, Throwable t) {
                 Log.d("callback failure", t.getMessage());
-                Toast.makeText(FeedListActivity.this, "callback failure", Toast.LENGTH_LONG).show();
             }
         };
         call.enqueue(callback);
