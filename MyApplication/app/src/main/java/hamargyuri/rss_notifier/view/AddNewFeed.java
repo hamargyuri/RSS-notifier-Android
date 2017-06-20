@@ -13,7 +13,7 @@ import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
 
-import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class AddNewFeed extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
@@ -21,29 +21,49 @@ public class AddNewFeed extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.title_new_feed);
         setContentView(R.layout.add_new_feed);
     }
 
     public void saveFeed(View view) {
-        EditText feedUrlInput = (EditText) findViewById(R.id.feedUrl);
-        final String feedUrl = feedUrlInput.getText().toString();
+        EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
+        EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
+        EditText notificationTitleEdit = (EditText) findViewById(R.id.input_notification);
 
-        FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
-        if (feed == null) {
-            feed = new Feed();
-            feed.setTitle(TEMP_RSS_TITLE);
+        String feedTitle = feedTitleEdit.getText().toString();
+        String feedUrl = feedUrlEdit.getText().toString();
+        String notificationTitle = notificationTitleEdit.getText().toString();
+
+        if (feedTitle.isEmpty() || feedUrl.isEmpty() || notificationTitle.isEmpty()) {
+            Toast.makeText(this, "Please fill in every data", Toast.LENGTH_LONG).show();
+            return;
         }
-        feed.setUrl(feedUrl);
-        feedDao.save(feed);
-        session.clear();
 
-        Toast.makeText(this, "feed saved", Toast.LENGTH_LONG).show();
-        feedListActivity(findViewById(android.R.id.content));
+        saveFeedInDb(feedTitle, feedUrl, notificationTitle);
     }
 
-    public void feedListActivity(View view){
+    public void launchFeedListActivity() {
         Intent intent = new Intent(this, FeedListActivity.class);
         startActivity(intent);
+        finish();
+    }
+
+    private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle) {
+        FeedDao feedDao = session.getFeedDao();
+        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Feed feed = new Feed();
+        feed.setTitle(feedTitle);
+        feed.setUrl(feedUrl);
+        feed.setNotificationTitle(notificationTitle);
+
+        feedDao.save(feed);
+        Toast.makeText(this, "feed saved successfully", Toast.LENGTH_LONG).show();
+        session.clear();
+
+        launchFeedListActivity();
     }
 }
