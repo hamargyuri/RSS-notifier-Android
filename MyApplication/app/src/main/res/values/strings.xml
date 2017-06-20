@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">RSS notifier</string>
-    <string name="input_url">Copy RSS feed url here</string>
-    <string name="button_save_url">Save</string>
+    <string name="title_feed_list">My RSS feeds</string>
+    <string name="title_new_feed">Add new RSS feed</string>
+    <string name="input_url">feed url</string>
+    <string name="button_save_feed">Save</string>
     <string name="feed_date_default">no saved feed</string>
+    <string name="input_title">feed title</string>
+    <string name="input_notification">notification title (e.g.: New job!)</string>
 </resources>
