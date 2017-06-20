@@ -25,6 +25,7 @@ import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
+import hamargyuri.rss_notifier.view.FeedListActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -65,10 +66,10 @@ public class NewFeedNotifierService extends Service {
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setSmallIcon(R.drawable.uw_rss_icon)
                         .setContentTitle("New job on Upwork!")
-                        .setContentText(jobDate);
+                        .setContentText(jobDate)
+                        .setAutoCancel(true);
 
-        Intent resultIntent = new Intent(Intent.ACTION_VIEW);
-        resultIntent.setData(Uri.parse("http://index.hu/24ora/rss/"));
+        Intent resultIntent = new Intent(context, FeedListActivity.class);
 
         PendingIntent pending = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         notificationBuilder.setContentIntent(pending);
