@@ -32,6 +32,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class FeedListActivity extends AppCompatActivity {
     private SwipeRefreshLayout feedSwipeRefresh;
@@ -42,6 +43,7 @@ public class FeedListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_list);
+        setTitle(R.string.title_feed_list);
         fetchAndRefreshFeed();
         feedSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.feed_swipe_refresh);
         feedSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -82,7 +84,7 @@ public class FeedListActivity extends AppCompatActivity {
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
+        Feed feed = feedDao.queryBuilder().where(Title.eq(TEMP_RSS_TITLE)).unique();
         Date previousDate = feed.getLatestItemDate();
 
         if (previousDate == null || latestItemDate.after(previousDate)) {
@@ -98,7 +100,7 @@ public class FeedListActivity extends AppCompatActivity {
 
     private void fetchAndRefreshFeed() {
         FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
+        Feed feed = feedDao.queryBuilder().where(Title.eq(TEMP_RSS_TITLE)).unique();
         if (feed == null) {
             return;
         }
@@ -150,7 +152,7 @@ public class FeedListActivity extends AppCompatActivity {
 
     public ArrayList<Feed> getAllFeeds(){
         FeedDao feedDao = session.getFeedDao();
-        ArrayList<Feed> feeds = new ArrayList<Feed>(feedDao.loadAll());
+        ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
         session.clear();
         return feeds;
     }
