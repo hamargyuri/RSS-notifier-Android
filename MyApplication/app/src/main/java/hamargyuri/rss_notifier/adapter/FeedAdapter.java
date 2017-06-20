@@ -1,4 +1,4 @@
-package hamargyuri.rss_notifier.model;
+package hamargyuri.rss_notifier.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,8 +11,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import hamargyuri.rss_notifier.R;
+import hamargyuri.rss_notifier.model.Feed;
 
 public class FeedAdapter extends ArrayAdapter<Feed> {
+    private ArrayList<Feed> feeds;
 
     public FeedAdapter(Context context, int layoutId, ArrayList<Feed> feeds) {
         super(context, layoutId, feeds);
@@ -34,5 +36,10 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         date.setText(feed != null ? feed.getLatestItemDate().toString() : null);
 
         return convertView;
+    }
+
+    public void updateFeeds(ArrayList<Feed> feeds){
+        this.feeds = feeds;
+        notifyDataSetChanged();
     }
 }
