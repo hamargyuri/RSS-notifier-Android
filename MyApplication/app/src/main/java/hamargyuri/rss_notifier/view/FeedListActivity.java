@@ -27,6 +27,7 @@ import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
+import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -88,7 +89,7 @@ public class FeedListActivity extends AppCompatActivity {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            sendNotification(feed.getLatestItemDate().toString());
+            NewFeedNotifierService.sendNotification(this, feed.getLatestItemDate().toString());
         }
 
         adapter.updateFeeds(getAllFeeds());
@@ -131,21 +132,6 @@ public class FeedListActivity extends AppCompatActivity {
             }
         };
         call.enqueue(callback);
-    }
-
-    //TODO: dynamic, updatable, etc.
-    public void sendNotification(String jobDate) {
-        NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
-                new NotificationCompat.Builder(this)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setSmallIcon(R.drawable.uw_rss_icon)
-                        .setContentTitle("New job on Upwork!")
-                        .setContentText(jobDate);
-
-        int notificationId = 1;
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
     public ArrayList<Feed> getAllFeeds(){

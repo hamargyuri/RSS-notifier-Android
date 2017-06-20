@@ -2,8 +2,11 @@ package hamargyuri.rss_notifier.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
@@ -56,17 +59,23 @@ public class NewFeedNotifierService extends Service {
     }
 
     //TODO: dynamic, updatable, etc.
-    public void sendNotification(String jobDate) {
+    public static void sendNotification(Context context, String jobDate) {
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
-                new NotificationCompat.Builder(this)
+                new NotificationCompat.Builder(context)
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setSmallIcon(R.drawable.uw_rss_icon)
                         .setContentTitle("New job on Upwork!")
                         .setContentText(jobDate);
 
+        Intent resultIntent = new Intent(Intent.ACTION_VIEW);
+        resultIntent.setData(Uri.parse("http://index.hu/24ora/rss/"));
+
+        PendingIntent pending = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(pending);
+
         int notificationId = 1;
         NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
@@ -80,7 +89,7 @@ public class NewFeedNotifierService extends Service {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            sendNotification(feed.getLatestItemDate().toString());
+            sendNotification(this, feed.getLatestItemDate().toString());
         }
 
         session.clear();
