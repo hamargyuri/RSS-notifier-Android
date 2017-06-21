@@ -7,6 +7,7 @@ import org.greenrobot.greendao.database.Database;
 
 import hamargyuri.rss_notifier.model.DaoMaster;
 import hamargyuri.rss_notifier.model.DaoSession;
+import hamargyuri.rss_notifier.model.FeedDao;
 import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 
 /**
@@ -14,7 +15,6 @@ import hamargyuri.rss_notifier.service.NewFeedNotifierService;
  */
 
 public class RSSNotifierApp extends Application {
-    public static final String TEMP_RSS_TITLE = "upwork"; //TODO: remove
     private static final String DATABASE = "RSS feeds";
     private static DaoSession session;
 

@@ -36,4 +36,5 @@ dependencies {
         exclude group: 'stax', module: 'stax'
     }
     compile 'org.greenrobot:greendao:3.2.2'
+    compile 'com.android.support:design:25.3.1'
 }

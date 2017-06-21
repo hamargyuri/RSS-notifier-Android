@@ -7,42 +7,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="hamargyuri.rss_notifier.view.FeedListActivity">
 
+
+
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
-        <EditText
-            android:id="@+id/feedUrl"
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/feed_list"
+            >
+        </ListView>
+
+        <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ems="10"
-            android:hint="@string/input_url"
-            android:inputType="textUri"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:src="@drawable/ic_add_black_24dp"
+            android:tint="@android:color/white"
+            android:backgroundTint="@color/colorPrimary"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:onClick="addNewFeed"
+            />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:onClick="saveFeed"
-            android:text="@string/button_save_url"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/feedUrl" />
-
-        <TextView
-            android:id="@+id/latest_feed_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button" />
     </android.support.constraint.ConstraintLayout>
+
 </android.support.v4.widget.SwipeRefreshLayout>

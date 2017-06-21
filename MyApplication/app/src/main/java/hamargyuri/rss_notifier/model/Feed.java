@@ -18,13 +18,16 @@ public class Feed {
     private String title;
     private String url;
     private Date latestItemDate;
+    private String notificationTitle;
 
-    @Generated(hash = 223791982)
-    public Feed(Long id, String title, String url, Date latestItemDate) {
+    @Generated(hash = 1971799673)
+    public Feed(Long id, String title, String url, Date latestItemDate,
+            String notificationTitle) {
         this.id = id;
         this.title = title;
         this.url = url;
         this.latestItemDate = latestItemDate;
+        this.notificationTitle = notificationTitle;
     }
 
     @Generated(hash = 1810414124)
@@ -61,5 +64,13 @@ public class Feed {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getNotificationTitle() {
+        return this.notificationTitle;
+    }
+
+    public void setNotificationTitle(String notificationTitle) {
+        this.notificationTitle = notificationTitle;
     }
 }
