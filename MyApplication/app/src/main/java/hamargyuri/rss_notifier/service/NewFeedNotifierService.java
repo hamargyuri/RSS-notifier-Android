@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,7 +31,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
+
 
 public class NewFeedNotifierService extends Service {
     private DaoSession session = RSSNotifierApp.getSession();
@@ -80,11 +82,11 @@ public class NewFeedNotifierService extends Service {
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
-    private void refreshLatestFeedItem(RSSItem rssItem) {
+    private void refreshLatestFeedItem(RSSItem rssItem, String title) {
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
+        Feed feed = feedDao.queryBuilder().where(Title.eq(title)).unique();
         Date previousDate = feed.getLatestItemDate();
 
         if (previousDate == null || latestItemDate.after(previousDate)) {
@@ -97,15 +99,18 @@ public class NewFeedNotifierService extends Service {
     }
 
     private void fetchAndRefreshFeed() {
-        FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(FeedDao.Properties.Title.eq(TEMP_RSS_TITLE)).unique();
-        if (feed == null) {
+        ArrayList<Feed> feeds = getAllFeeds();
+        if (feeds == null) {
             return;
         }
+        for (Feed feed : feeds) {
+            fetch(feed, feed.getTitle());
+        }
+    }
 
+    public void fetch(Feed feed, final String title) {
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
-        session.clear();
 
         Call<RSSFeed> call = RSSFactory.create().getFeed(url);
         Callback<RSSFeed> callback = new Callback<RSSFeed>() {
@@ -122,7 +127,7 @@ public class NewFeedNotifierService extends Service {
                     return;
                 }
                 RSSItem latestItem = channel.getItems().get(0);
-                refreshLatestFeedItem(latestItem);
+                refreshLatestFeedItem(latestItem, title);
             }
 
             @Override
@@ -131,5 +136,12 @@ public class NewFeedNotifierService extends Service {
             }
         };
         call.enqueue(callback);
+    }
+
+    public ArrayList<Feed> getAllFeeds(){
+        FeedDao feedDao = session.getFeedDao();
+        ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
+        session.clear();
+        return feeds;
     }
 }

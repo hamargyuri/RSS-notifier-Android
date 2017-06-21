@@ -30,8 +30,8 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         TextView title = (TextView) convertView.findViewById(R.id.feed_title);
         TextView date = (TextView) convertView.findViewById(R.id.feed_update_date);
 
-        title.setText(feed != null ? feed.getTitle() : "no title");
-        date.setText(feed != null ? feed.getLatestItemDate().toString() : null);
+        title.setText(feed.getTitle() != null ? feed.getTitle() : "no title");
+        date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
 
         return convertView;
     }
