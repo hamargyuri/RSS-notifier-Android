@@ -1,17 +1,13 @@
 package hamargyuri.rss_notifier.view;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -27,11 +23,11 @@ import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
+import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static hamargyuri.rss_notifier.RSSNotifierApp.TEMP_RSS_TITLE;
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class FeedListActivity extends AppCompatActivity {
@@ -44,12 +40,12 @@ public class FeedListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_list);
         setTitle(R.string.title_feed_list);
-        fetchAndRefreshFeed();
+        fetchAndRefreshFeeds();
         feedSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.feed_swipe_refresh);
         feedSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchAndRefreshFeed();
+                fetchAndRefreshFeeds();
             }
         });
 
@@ -80,33 +76,37 @@ public class FeedListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void refreshLatestFeedItem(RSSItem rssItem) {
+    private void refreshLatestFeedItem(RSSItem rssItem, String title) {
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(Title.eq(TEMP_RSS_TITLE)).unique();
+        Feed feed = feedDao.queryBuilder().where(Title.eq(title)).unique();
         Date previousDate = feed.getLatestItemDate();
 
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            sendNotification(feed.getLatestItemDate().toString());
+            NewFeedNotifierService.sendNotification(this, feed.getLatestItemDate().toString());
         }
 
-        adapter.updateFeeds(getAllFeeds());
         session.clear();
+        adapter.updateFeeds(getAllFeeds());
         feedSwipeRefresh.setRefreshing(false);
     }
 
-    private void fetchAndRefreshFeed() {
-        FeedDao feedDao = session.getFeedDao();
-        Feed feed = feedDao.queryBuilder().where(Title.eq(TEMP_RSS_TITLE)).unique();
-        if (feed == null) {
+    private void fetchAndRefreshFeeds() {
+        ArrayList<Feed> feeds = getAllFeeds();
+        if (feeds == null) {
             return;
         }
+        for (Feed feed : feeds) {
+            fetch(feed, feed.getTitle());
+        }
+    }
+
+    public void fetch(Feed feed, final String title) {
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
-        session.clear();
 
         Call<RSSFeed> call = RSSFactory.create().getFeed(url);
         Callback<RSSFeed> callback = new Callback<RSSFeed>() {
@@ -123,31 +123,15 @@ public class FeedListActivity extends AppCompatActivity {
                     return;
                 }
                 RSSItem latestItem = channel.getItems().get(0);
-                refreshLatestFeedItem(latestItem);
+                refreshLatestFeedItem(latestItem, title);
             }
 
             @Override
             public void onFailure(Call<RSSFeed> call, Throwable t) {
                 Log.d("callback failure", t.getMessage());
-                Toast.makeText(FeedListActivity.this, "callback failure", Toast.LENGTH_LONG).show();
             }
         };
         call.enqueue(callback);
-    }
-
-    //TODO: dynamic, updatable, etc.
-    public void sendNotification(String jobDate) {
-        NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
-                new NotificationCompat.Builder(this)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setSmallIcon(R.drawable.uw_rss_icon)
-                        .setContentTitle("New job on Upwork!")
-                        .setContentText(jobDate);
-
-        int notificationId = 1;
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
     public ArrayList<Feed> getAllFeeds(){

@@ -14,8 +14,6 @@ import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.model.Feed;
 
 public class FeedAdapter extends ArrayAdapter<Feed> {
-    private ArrayList<Feed> feeds;
-
     public FeedAdapter(Context context, int layoutId, ArrayList<Feed> feeds) {
         super(context, layoutId, feeds);
     }
@@ -39,7 +37,8 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
     }
 
     public void updateFeeds(ArrayList<Feed> feeds){
-        this.feeds = feeds;
+        this.clear();
+        this.addAll(feeds);
         notifyDataSetChanged();
     }
 }
