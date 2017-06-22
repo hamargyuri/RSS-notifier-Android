@@ -3,6 +3,7 @@ package hamargyuri.rss_notifier.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,12 +18,28 @@ import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class AddNewFeed extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
+    private boolean isNewEntry = true;
+    private Feed mFeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            mFeed = getIntent().getParcelableExtra("feed");
+            isNewEntry = false;
+        } catch (NullPointerException e){
+            Log.d("onCreate: ", e.getMessage());
+        }
         setTitle(R.string.title_new_feed);
         setContentView(R.layout.add_new_feed);
+        if (mFeed != null) {
+            EditText title = (EditText) findViewById(R.id.input_feed_title);
+            EditText url = (EditText) findViewById(R.id.input_feed_url);
+            EditText notification = (EditText) findViewById(R.id.input_notification);
+            title.setText(mFeed.getTitle());
+            url.setText(mFeed.getUrl());
+            notification.setText(mFeed.getNotificationTitle());
+        }
     }
 
     public void saveFeed(View view) {
