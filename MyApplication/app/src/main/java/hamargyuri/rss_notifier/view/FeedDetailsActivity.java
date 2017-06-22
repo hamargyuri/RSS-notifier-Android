@@ -24,15 +24,12 @@ public class FeedDetailsActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            mFeed = getIntent().getParcelableExtra("feed");
-            isNewEntry = false;
-        } catch (NullPointerException e){
-            Log.d("onCreate: ", e.getMessage());
-        }
         setTitle(R.string.title_new_feed);
         setContentView(R.layout.activity_feed_details);
+        mFeed = getIntent().getParcelableExtra("feed");
+
         if (mFeed != null) {
+            isNewEntry = false;
             EditText title = (EditText) findViewById(R.id.input_feed_title);
             EditText url = (EditText) findViewById(R.id.input_feed_url);
             EditText notification = (EditText) findViewById(R.id.input_notification);
@@ -42,7 +39,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         }
     }
 
-    public void saveFeed(View view) {
+    public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
         EditText notificationTitleEdit = (EditText) findViewById(R.id.input_notification);
@@ -67,20 +64,30 @@ public class FeedDetailsActivity extends AppCompatActivity{
 
     private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle) {
         FeedDao feedDao = session.getFeedDao();
-        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
-            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
-            return;
+
+        if (isNewEntry) {
+            mFeed = handleNewFeed(feedDao, feedTitle);
         }
 
-        Feed feed = new Feed();
-        feed.setTitle(feedTitle);
-        feed.setUrl(feedUrl);
-        feed.setNotificationTitle(notificationTitle);
+        if (mFeed == null) return;
 
-        feedDao.save(feed);
+        mFeed.setTitle(feedTitle);
+        mFeed.setUrl(feedUrl);
+        mFeed.setNotificationTitle(notificationTitle);
+
+        feedDao.save(mFeed);
         Toast.makeText(this, "feed saved successfully", Toast.LENGTH_LONG).show();
         session.clear();
 
         launchFeedListActivity();
+    }
+
+    private Feed handleNewFeed(FeedDao feedDao, String feedTitle) {
+        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return null;
+        }
+
+        return new Feed();
     }
 }
