@@ -1,6 +1,5 @@
 package hamargyuri.rss_notifier.view;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 
@@ -56,13 +54,6 @@ public class FeedListActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.feed_list);
         listView.setAdapter(adapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                editExistingFeed((Feed) parent.getItemAtPosition(position));
-            }
-        });
-
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -82,12 +73,6 @@ public class FeedListActivity extends AppCompatActivity {
 
     public void addNewFeed(View view){
         Intent intent = new Intent(this, FeedDetailsActivity.class);
-        startActivity(intent);
-    }
-
-    public void editExistingFeed(Feed feed){
-        Intent intent = new Intent(this, FeedDetailsActivity.class);
-        intent.putExtra("feed", feed);
         startActivity(intent);
     }
 
