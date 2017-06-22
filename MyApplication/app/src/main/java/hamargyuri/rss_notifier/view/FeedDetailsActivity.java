@@ -16,7 +16,7 @@ import hamargyuri.rss_notifier.model.FeedDao;
 
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
-public class AddNewFeed extends AppCompatActivity{
+public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
     private boolean isNewEntry = true;
     private Feed mFeed;
@@ -31,7 +31,7 @@ public class AddNewFeed extends AppCompatActivity{
             Log.d("onCreate: ", e.getMessage());
         }
         setTitle(R.string.title_new_feed);
-        setContentView(R.layout.add_new_feed);
+        setContentView(R.layout.activity_feed_details);
         if (mFeed != null) {
             EditText title = (EditText) findViewById(R.id.input_feed_title);
             EditText url = (EditText) findViewById(R.id.input_feed_url);

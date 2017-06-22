@@ -12,16 +12,21 @@ import java.util.ArrayList;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.model.Feed;
+import hamargyuri.rss_notifier.view.FeedListActivity;
 
 public class FeedAdapter extends ArrayAdapter<Feed> {
+
+    private Context mContext;
+
     public FeedAdapter(Context context, int layoutId, ArrayList<Feed> feeds) {
         super(context, layoutId, feeds);
+        mContext = context;
     }
 
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        Feed feed = getItem(position);
+        final Feed feed = getItem(position);
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.feed_fragment,
                     parent, false);
