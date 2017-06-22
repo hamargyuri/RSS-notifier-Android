@@ -86,7 +86,7 @@ public class FeedListActivity extends AppCompatActivity {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            NewFeedNotifierService.sendNotification(this, feed.getLatestItemDate().toString());
+            NewFeedNotifierService.sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
         }
 
         session.clear();
