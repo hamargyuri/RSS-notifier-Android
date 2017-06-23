@@ -29,6 +29,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         mFeed = getIntent().getParcelableExtra("feed");
 
         if (mFeed != null) {
+            setTitle(R.string.title_edit_feed);
             isNewEntry = false;
             EditText title = (EditText) findViewById(R.id.input_feed_title);
             EditText url = (EditText) findViewById(R.id.input_feed_url);
