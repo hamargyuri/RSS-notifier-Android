@@ -62,12 +62,12 @@ public class NewFeedNotifierService extends Service {
     }
 
     //TODO: dynamic, updatable, etc.
-    public static void sendNotification(Context context, String jobDate) {
+    public static void sendNotification(Context context, String notificationTitle, String jobDate) {
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
                 new NotificationCompat.Builder(context)
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setSmallIcon(R.drawable.uw_rss_icon)
-                        .setContentTitle("New job on Upwork!")
+                        .setContentTitle(notificationTitle)
                         .setContentText(jobDate)
                         .setAutoCancel(true);
 
@@ -92,7 +92,7 @@ public class NewFeedNotifierService extends Service {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            sendNotification(this, feed.getLatestItemDate().toString());
+            sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
         }
 
         session.clear();

@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.AddNewFeed" >
+        <activity android:name=".view.FeedDetailsActivity" >
         </activity>
 
         <service

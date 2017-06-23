@@ -63,8 +63,7 @@ public class FeedListActivity extends AppCompatActivity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 int topRowVerticalPosition =
-                        (listView == null || listView.getChildCount() == 0) ?
-                                0 : listView.getChildAt(0).getTop();
+                        listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
                 feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
             }
         });
@@ -72,7 +71,7 @@ public class FeedListActivity extends AppCompatActivity {
     }
 
     public void addNewFeed(View view){
-        Intent intent = new Intent(this, AddNewFeed.class);
+        Intent intent = new Intent(this, FeedDetailsActivity.class);
         startActivity(intent);
     }
 
@@ -86,7 +85,7 @@ public class FeedListActivity extends AppCompatActivity {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            NewFeedNotifierService.sendNotification(this, feed.getLatestItemDate().toString());
+            NewFeedNotifierService.sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
         }
 
         session.clear();

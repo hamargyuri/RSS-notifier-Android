@@ -26,6 +26,9 @@ public class RSSNotifierApp extends Application {
         Database db = helper.getWritableDb();
         session = new DaoMaster(db).newSession();
 
+//        session.getFeedDao().dropTable(db, true);
+//        createTable(db, true);
+
         startService(new Intent(this, NewFeedNotifierService.class));
     }
 

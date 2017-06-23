@@ -3,6 +3,7 @@ package hamargyuri.rss_notifier.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,17 +16,31 @@ import hamargyuri.rss_notifier.model.FeedDao;
 
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
-public class AddNewFeed extends AppCompatActivity{
+public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
+    private boolean isNewEntry = true;
+    private Feed mFeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.title_new_feed);
-        setContentView(R.layout.add_new_feed);
+        setContentView(R.layout.activity_feed_details);
+        mFeed = getIntent().getParcelableExtra("feed");
+
+        if (mFeed != null) {
+            setTitle(R.string.title_edit_feed);
+            isNewEntry = false;
+            EditText title = (EditText) findViewById(R.id.input_feed_title);
+            EditText url = (EditText) findViewById(R.id.input_feed_url);
+            EditText notification = (EditText) findViewById(R.id.input_notification);
+            title.setText(mFeed.getTitle());
+            url.setText(mFeed.getUrl());
+            notification.setText(mFeed.getNotificationTitle());
+        }
     }
 
-    public void saveFeed(View view) {
+    public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
         EditText notificationTitleEdit = (EditText) findViewById(R.id.input_notification);
@@ -50,20 +65,30 @@ public class AddNewFeed extends AppCompatActivity{
 
     private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle) {
         FeedDao feedDao = session.getFeedDao();
-        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
-            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
-            return;
+
+        if (isNewEntry) {
+            mFeed = handleNewFeed(feedDao, feedTitle);
         }
 
-        Feed feed = new Feed();
-        feed.setTitle(feedTitle);
-        feed.setUrl(feedUrl);
-        feed.setNotificationTitle(notificationTitle);
+        if (mFeed == null) return;
 
-        feedDao.save(feed);
+        mFeed.setTitle(feedTitle);
+        mFeed.setUrl(feedUrl);
+        mFeed.setNotificationTitle(notificationTitle);
+
+        feedDao.save(mFeed);
         Toast.makeText(this, "feed saved successfully", Toast.LENGTH_LONG).show();
         session.clear();
 
         launchFeedListActivity();
+    }
+
+    private Feed handleNewFeed(FeedDao feedDao, String feedTitle) {
+        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return null;
+        }
+
+        return new Feed();
     }
 }
