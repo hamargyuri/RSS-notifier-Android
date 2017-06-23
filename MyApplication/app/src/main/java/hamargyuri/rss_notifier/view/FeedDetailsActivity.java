@@ -2,6 +2,7 @@ package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,9 +38,25 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
+            FloatingActionButton deleteButton = (FloatingActionButton) findViewById(R.id.delete_button);
+            deleteButton.setVisibility(View.VISIBLE);
+
+            deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    deleteFeed(mFeed);
+                    launchFeedListActivity();
+                    return true;
+                }
+            });
         }
     }
 
+    public void deleteFeed(Feed feed) {
+        FeedDao feedDao = session.getFeedDao();
+        feedDao.delete(feed);
+        Toast.makeText(this, "Feed deleted", Toast.LENGTH_LONG).show();
+    }
     public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
