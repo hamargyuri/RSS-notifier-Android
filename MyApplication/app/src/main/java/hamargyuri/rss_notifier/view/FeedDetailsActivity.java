@@ -1,14 +1,15 @@
 package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import be.appfoundry.progressbutton.ProgressButton;
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
@@ -29,6 +30,9 @@ public class FeedDetailsActivity extends AppCompatActivity{
         setContentView(R.layout.activity_feed_details);
         mFeed = getIntent().getParcelableExtra("feed");
 
+
+
+
         if (mFeed != null) {
             setTitle(R.string.title_edit_feed);
             isNewEntry = false;
@@ -38,15 +42,47 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
-            FloatingActionButton deleteButton = (FloatingActionButton) findViewById(R.id.delete_button);
-            deleteButton.setVisibility(View.VISIBLE);
 
-            deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+
+            final ProgressButton progressButton = (ProgressButton) findViewById(R.id.progress_button);
+            progressButton.setColor(Color.parseColor("#505050"));
+            progressButton.setProgressColor(Color.parseColor("#000000"));
+            progressButton.setStrokeWidth(7);
+            progressButton.setStrokeColor(Color.parseColor("#505050"));
+            progressButton.setIndeterminate(true);
+            progressButton.setAnimationStep(55);
+            progressButton.setAnimationDelay(1);
+            progressButton.setStartDegrees(270);
+            progressButton.setRadius(75);
+            progressButton.setIcon(getDrawable(R.drawable.ic_delete_black_24dp));
+            progressButton.setMaxProgress(1000.0f);
+
+            progressButton.setVisibility(View.VISIBLE);
+
+            progressButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    progressButton.stopAnimating();
                     deleteFeed(mFeed);
                     launchFeedListActivity();
                     return true;
+                }
+
+            });
+
+
+            progressButton.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            progressButton.startAnimating();
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            progressButton.stopAnimating();
+                            break;
+                    }
+                    return false;
                 }
             });
         }
