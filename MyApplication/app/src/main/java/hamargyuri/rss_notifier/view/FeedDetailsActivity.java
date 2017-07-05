@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import be.appfoundry.progressbutton.ProgressButton;
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
@@ -22,6 +25,8 @@ public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
     private boolean isNewEntry = true;
     private Feed mFeed;
+    private final float longClickTime = 1000.0f;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,49 +48,72 @@ public class FeedDetailsActivity extends AppCompatActivity{
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
 
-
-            final ProgressButton progressButton = (ProgressButton) findViewById(R.id.progress_button);
-            progressButton.setColor(Color.parseColor("#505050"));
-            progressButton.setProgressColor(Color.parseColor("#000000"));
-            progressButton.setStrokeWidth(7);
-            progressButton.setStrokeColor(Color.parseColor("#505050"));
-            progressButton.setIndeterminate(true);
-            progressButton.setAnimationStep(55);
-            progressButton.setAnimationDelay(1);
-            progressButton.setStartDegrees(270);
-            progressButton.setRadius(75);
-            progressButton.setIcon(getDrawable(R.drawable.ic_delete_black_24dp));
-            progressButton.setMaxProgress(1000.0f);
-
-            progressButton.setVisibility(View.VISIBLE);
-
-            progressButton.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    progressButton.stopAnimating();
-                    deleteFeed(mFeed);
-                    launchFeedListActivity();
-                    return true;
-                }
-
-            });
-
-
-            progressButton.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            progressButton.startAnimating();
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            progressButton.stopAnimating();
-                            break;
-                    }
-                    return false;
-                }
-            });
+            prepareDeleteButton();
         }
+    }
+
+    public void prepareDeleteButton() {
+        final ProgressButton deleteButton = (ProgressButton) findViewById(R.id.progress_button);
+        deleteButton.setColor(Color.parseColor("#505050"));
+        deleteButton.setProgressColor(Color.parseColor("#101010"));
+        deleteButton.setStrokeWidth(75);
+        deleteButton.setStrokeColor(Color.parseColor("#505050"));
+        deleteButton.setIndeterminate(true);
+        deleteButton.setAnimationDelay(0);
+        deleteButton.setStartDegrees(270);
+        deleteButton.setRadius(75);
+        deleteButton.setIcon(getDrawable(R.drawable.ic_delete_white_24dp));
+        deleteButton.setMaxProgress(longClickTime);
+        deleteButton.setVisibility(View.VISIBLE);
+//        TODO: find a fix for setting up ProgressButton in the XML layout file
+
+        deleteButton.setOnTouchListener(new View.OnTouchListener() {
+            boolean run;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Timer timer = new Timer();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        deleteButton.startAnimating();
+                        run = true;
+                        TimerTask timerTask = new TimerTask() {
+                            public void run() {
+                                while (System.currentTimeMillis() - scheduledExecutionTime() <= longClickTime && run) {
+                                    final float current = System.currentTimeMillis() - scheduledExecutionTime();
+                                    if (current < longClickTime) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                deleteButton.setProgress(current);
+                                            }
+                                        });
+                                    }
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (run) {
+                                            deleteFeed(mFeed);
+                                            launchFeedListActivity();
+                                        }
+                                        deleteButton.setProgress(0);
+                                        deleteButton.stopAnimating();
+                                    }
+                                });
+                                this.cancel();
+                            }
+                        };
+                        timer.schedule(timerTask, 0, (int) longClickTime);
+                        deleteButton.stopAnimating();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        run = false;
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     public void deleteFeed(Feed feed) {
