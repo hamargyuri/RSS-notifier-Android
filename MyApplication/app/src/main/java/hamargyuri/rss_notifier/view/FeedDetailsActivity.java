@@ -54,14 +54,14 @@ public class FeedDetailsActivity extends AppCompatActivity{
 
     public void prepareDeleteButton() {
         final ProgressButton deleteButton = (ProgressButton) findViewById(R.id.progress_button);
-        deleteButton.setColor(Color.parseColor("#505050"));
-        deleteButton.setProgressColor(Color.parseColor("#101010"));
-        deleteButton.setStrokeWidth(75);
-        deleteButton.setStrokeColor(Color.parseColor("#505050"));
+        deleteButton.setColor(Color.parseColor("#3F51B5"));
+        deleteButton.setProgressColor(Color.parseColor("#FF4081"));
+        deleteButton.setStrokeWidth(8);
+        deleteButton.setStrokeColor(Color.parseColor("#3F51B5"));
         deleteButton.setIndeterminate(true);
         deleteButton.setAnimationDelay(0);
         deleteButton.setStartDegrees(270);
-        deleteButton.setRadius(75);
+        deleteButton.setRadius(72);
         deleteButton.setIcon(getDrawable(R.drawable.ic_delete_white_24dp));
         deleteButton.setMaxProgress(longClickTime);
         deleteButton.setVisibility(View.VISIBLE);
