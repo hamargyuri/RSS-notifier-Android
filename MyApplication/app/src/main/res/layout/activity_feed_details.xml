@@ -17,7 +17,7 @@
         android:ems="10"
         android:hint="@string/input_title"
         android:inputType="textShortMessage"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,7 +35,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/input_feed_title"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.5"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
@@ -69,6 +69,22 @@
         android:text="@string/button_save_feed"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/input_notification" />
+
+    <Switch
+        android:id="@+id/notification_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Notifications"
+        android:showText="false"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_notification"
+        android:textSize="18sp"
+        android:theme="@style/SwitchButton"
+        />
+
 
     <be.appfoundry.progressbutton.ProgressButton
         android:id="@+id/progress_button"
