@@ -38,6 +38,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
+
             FloatingActionButton deleteButton = (FloatingActionButton) findViewById(R.id.delete_button);
             deleteButton.setVisibility(View.VISIBLE);
 
@@ -57,6 +58,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         feedDao.delete(feed);
         Toast.makeText(this, "Feed deleted", Toast.LENGTH_LONG).show();
     }
+    
     public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
