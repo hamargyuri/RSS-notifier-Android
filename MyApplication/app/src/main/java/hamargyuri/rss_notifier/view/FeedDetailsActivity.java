@@ -1,13 +1,18 @@
 package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import be.appfoundry.progressbutton.ProgressButton;
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
 import hamargyuri.rss_notifier.model.DaoSession;
@@ -20,6 +25,8 @@ public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
     private boolean isNewEntry = true;
     private Feed mFeed;
+    private final float longClickTime = 1000.0f;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +34,9 @@ public class FeedDetailsActivity extends AppCompatActivity{
         setTitle(R.string.title_new_feed);
         setContentView(R.layout.activity_feed_details);
         mFeed = getIntent().getParcelableExtra("feed");
+
+
+
 
         if (mFeed != null) {
             setTitle(R.string.title_edit_feed);
@@ -37,9 +47,81 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
+
+            prepareDeleteButton();
         }
     }
 
+    public void prepareDeleteButton() {
+        final ProgressButton deleteButton = (ProgressButton) findViewById(R.id.progress_button);
+        deleteButton.setColor(Color.parseColor("#3F51B5"));
+        deleteButton.setProgressColor(Color.parseColor("#FF4081"));
+        deleteButton.setStrokeWidth(8);
+        deleteButton.setStrokeColor(Color.parseColor("#3F51B5"));
+        deleteButton.setIndeterminate(true);
+        deleteButton.setAnimationDelay(0);
+        deleteButton.setStartDegrees(270);
+        deleteButton.setRadius(72);
+        deleteButton.setIcon(getDrawable(R.drawable.ic_delete_white_24dp));
+        deleteButton.setMaxProgress(longClickTime);
+        deleteButton.setVisibility(View.VISIBLE);
+//        TODO: find a fix for setting up ProgressButton in the XML layout file
+
+        deleteButton.setOnTouchListener(new View.OnTouchListener() {
+            boolean run;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Timer timer = new Timer();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        deleteButton.startAnimating();
+                        run = true;
+                        TimerTask timerTask = new TimerTask() {
+                            public void run() {
+                                while (System.currentTimeMillis() - scheduledExecutionTime() <= longClickTime && run) {
+                                    final float current = System.currentTimeMillis() - scheduledExecutionTime();
+                                    if (current < longClickTime) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                deleteButton.setProgress(current);
+                                            }
+                                        });
+                                    }
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (run) {
+                                            deleteFeed(mFeed);
+                                            launchFeedListActivity();
+                                        }
+                                        deleteButton.setProgress(0);
+                                        deleteButton.stopAnimating();
+                                    }
+                                });
+                                this.cancel();
+                            }
+                        };
+                        timer.schedule(timerTask, 0, (int) longClickTime);
+                        deleteButton.stopAnimating();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        run = false;
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
+    public void deleteFeed(Feed feed) {
+        FeedDao feedDao = session.getFeedDao();
+        feedDao.delete(feed);
+        Toast.makeText(this, "Feed deleted", Toast.LENGTH_LONG).show();
+    }
+    
     public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
