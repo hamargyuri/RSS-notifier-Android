@@ -82,7 +82,7 @@ public class NewFeedNotifierService extends Service {
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
-    private void refreshLatestFeedItem(RSSItem rssItem, String title) {
+    private void refreshLatestFeedItem(RSSItem rssItem, String title, boolean sendNotification) {
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
@@ -92,7 +92,9 @@ public class NewFeedNotifierService extends Service {
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
             feedDao.save(feed);
-            sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
+            if (sendNotification) {
+                sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
+            }
         }
 
         session.clear();
@@ -108,7 +110,7 @@ public class NewFeedNotifierService extends Service {
         }
     }
 
-    public void fetch(Feed feed, final String title) {
+    public void fetch(final Feed feed, final String title) {
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
 
@@ -127,7 +129,7 @@ public class NewFeedNotifierService extends Service {
                     return;
                 }
                 RSSItem latestItem = channel.getItems().get(0);
-                refreshLatestFeedItem(latestItem, title);
+                refreshLatestFeedItem(latestItem, title, feed.getNotificationEnabled());
             }
 
             @Override

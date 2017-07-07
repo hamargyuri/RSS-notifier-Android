@@ -51,7 +51,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
-            notificationSwitch.setChecked(mFeed.isNotificationEnabled());
+            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
 
             prepareDeleteButton();
         }

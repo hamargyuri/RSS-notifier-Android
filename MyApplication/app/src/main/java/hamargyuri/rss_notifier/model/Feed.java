@@ -79,7 +79,7 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
     }
 
-    public boolean isNotificationEnabled() {return this.notificationEnabled;}
+    public boolean getNotificationEnabled() {return this.notificationEnabled;}
 
     public void setNotificationEnabled(boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
@@ -100,9 +100,6 @@ public class Feed implements Parcelable {
         dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
     }
 
-    public boolean getNotificationEnabled() {
-        return this.notificationEnabled;
-    }
 
     protected Feed(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
