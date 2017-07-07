@@ -41,15 +41,6 @@ public class FeedDetailsActivity extends AppCompatActivity{
         mFeed = getIntent().getParcelableExtra("feed");
 
         Switch notificationSwitch = (Switch) findViewById(R.id.notification_switch);
-        notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Log.d("SWITCH", "onCheckedChanged: ON");
-                } else {
-                    Log.d("SWITCH", "onCheckedChanged: OFF");
-                }
-            }
-        });
 
         if (mFeed != null) {
             setTitle(R.string.title_edit_feed);
@@ -60,6 +51,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
+            notificationSwitch.setChecked(mFeed.isNotificationEnabled());
 
             prepareDeleteButton();
         }
@@ -148,7 +140,10 @@ public class FeedDetailsActivity extends AppCompatActivity{
             return;
         }
 
-        saveFeedInDb(feedTitle, feedUrl, notificationTitle);
+        Switch notificationSwitch = (Switch) findViewById(R.id.notification_switch);
+        boolean notificationEnabled = notificationSwitch.isChecked();
+
+        saveFeedInDb(feedTitle, feedUrl, notificationTitle, notificationEnabled);
     }
 
     public void launchFeedListActivity() {
@@ -157,7 +152,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         finish();
     }
 
-    private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle) {
+    private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle, boolean notificationEnabled) {
         FeedDao feedDao = session.getFeedDao();
 
         if (isNewEntry) {
@@ -169,6 +164,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         mFeed.setTitle(feedTitle);
         mFeed.setUrl(feedUrl);
         mFeed.setNotificationTitle(notificationTitle);
+        mFeed.setNotificationEnabled(notificationEnabled);
 
         feedDao.save(mFeed);
         Toast.makeText(this, "feed saved successfully", Toast.LENGTH_LONG).show();

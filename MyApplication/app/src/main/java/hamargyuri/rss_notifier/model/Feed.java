@@ -22,15 +22,17 @@ public class Feed implements Parcelable {
     private String url;
     private Date latestItemDate;
     private String notificationTitle;
+    private boolean notificationEnabled;
 
-    @Generated(hash = 1971799673)
+    @Generated(hash = 1667397730)
     public Feed(Long id, String title, String url, Date latestItemDate,
-            String notificationTitle) {
+            String notificationTitle, boolean notificationEnabled) {
         this.id = id;
         this.title = title;
         this.url = url;
         this.latestItemDate = latestItemDate;
         this.notificationTitle = notificationTitle;
+        this.notificationEnabled = notificationEnabled;
     }
 
     @Generated(hash = 1810414124)
@@ -77,6 +79,12 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
     }
 
+    public boolean isNotificationEnabled() {return this.notificationEnabled;}
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -89,6 +97,11 @@ public class Feed implements Parcelable {
         dest.writeString(this.url);
         dest.writeLong(this.latestItemDate != null ? this.latestItemDate.getTime() : -1);
         dest.writeString(this.notificationTitle);
+        dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
+    }
+
+    public boolean getNotificationEnabled() {
+        return this.notificationEnabled;
     }
 
     protected Feed(Parcel in) {
@@ -98,9 +111,10 @@ public class Feed implements Parcelable {
         long tmpLatestItemDate = in.readLong();
         this.latestItemDate = tmpLatestItemDate == -1 ? null : new Date(tmpLatestItemDate);
         this.notificationTitle = in.readString();
+        this.notificationEnabled = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<Feed> CREATOR = new Parcelable.Creator<Feed>() {
+    public static final Creator<Feed> CREATOR = new Creator<Feed>() {
         @Override
         public Feed createFromParcel(Parcel source) {
             return new Feed(source);
