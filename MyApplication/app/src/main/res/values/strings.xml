@@ -8,4 +8,5 @@
     <string name="feed_date_default">no saved feed</string>
     <string name="input_title">feed title</string>
     <string name="input_notification">notification title (e.g.: New job!)</string>
+    <string name="toggle_notifications">Notifications</string>
 </resources>

@@ -7,7 +7,6 @@ import org.greenrobot.greendao.database.Database;
 
 import hamargyuri.rss_notifier.model.DaoMaster;
 import hamargyuri.rss_notifier.model.DaoSession;
-import hamargyuri.rss_notifier.model.FeedDao;
 import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 
 /**

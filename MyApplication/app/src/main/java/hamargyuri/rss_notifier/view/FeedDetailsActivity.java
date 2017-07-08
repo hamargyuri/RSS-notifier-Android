@@ -2,11 +2,16 @@ package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -35,8 +40,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         setContentView(R.layout.activity_feed_details);
         mFeed = getIntent().getParcelableExtra("feed");
 
-
-
+        Switch notificationSwitch = (Switch) findViewById(R.id.notification_switch);
 
         if (mFeed != null) {
             setTitle(R.string.title_edit_feed);
@@ -47,6 +51,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
             title.setText(mFeed.getTitle());
             url.setText(mFeed.getUrl());
             notification.setText(mFeed.getNotificationTitle());
+            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
 
             prepareDeleteButton();
         }
@@ -54,10 +59,10 @@ public class FeedDetailsActivity extends AppCompatActivity{
 
     public void prepareDeleteButton() {
         final ProgressButton deleteButton = (ProgressButton) findViewById(R.id.progress_button);
-        deleteButton.setColor(Color.parseColor("#3F51B5"));
-        deleteButton.setProgressColor(Color.parseColor("#FF4081"));
+        deleteButton.setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+        deleteButton.setProgressColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+        deleteButton.setStrokeColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
         deleteButton.setStrokeWidth(8);
-        deleteButton.setStrokeColor(Color.parseColor("#3F51B5"));
         deleteButton.setIndeterminate(true);
         deleteButton.setAnimationDelay(0);
         deleteButton.setStartDegrees(270);
@@ -136,7 +141,10 @@ public class FeedDetailsActivity extends AppCompatActivity{
             return;
         }
 
-        saveFeedInDb(feedTitle, feedUrl, notificationTitle);
+        Switch notificationSwitch = (Switch) findViewById(R.id.notification_switch);
+        boolean notificationEnabled = notificationSwitch.isChecked();
+
+        saveFeedInDb(feedTitle, feedUrl, notificationTitle, notificationEnabled);
     }
 
     public void launchFeedListActivity() {
@@ -145,7 +153,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         finish();
     }
 
-    private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle) {
+    private void saveFeedInDb(String feedTitle, String feedUrl, String notificationTitle, boolean notificationEnabled) {
         FeedDao feedDao = session.getFeedDao();
 
         if (isNewEntry) {
@@ -157,6 +165,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         mFeed.setTitle(feedTitle);
         mFeed.setUrl(feedUrl);
         mFeed.setNotificationTitle(notificationTitle);
+        mFeed.setNotificationEnabled(notificationEnabled);
 
         feedDao.save(mFeed);
         Toast.makeText(this, "feed saved successfully", Toast.LENGTH_LONG).show();
