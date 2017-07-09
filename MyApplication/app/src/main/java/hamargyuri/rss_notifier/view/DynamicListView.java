@@ -21,7 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -29,11 +28,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -41,11 +37,9 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.adapter.FeedAdapter;
 import hamargyuri.rss_notifier.model.Feed;
 
@@ -299,7 +293,8 @@ public class DynamicListView extends ListView {
                 touchEventsCancelled();
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                /* If a multitouch event took place and the original touch dictating
+                /*
+                 *  If a multitouch event took place and the original touch dictating
                  * the movement of the hover cell has ended, then the dragging event
                  * ends and the hover cell is animated to its corresponding position
                  * in the listview. */
