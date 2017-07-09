@@ -14,12 +14,12 @@
         android:layout_height="match_parent"
         >
 
-        <ListView
+        <hamargyuri.rss_notifier.view.DynamicListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/feed_list"
             >
-        </ListView>
+        </hamargyuri.rss_notifier.view.DynamicListView>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/add_new_feed_button"

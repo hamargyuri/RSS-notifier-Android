@@ -31,13 +31,20 @@ import retrofit2.Response;
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class FeedListActivity extends AppCompatActivity {
+
+
     private SwipeRefreshLayout feedSwipeRefresh;
     private DaoSession session = RSSNotifierApp.getSession();
     private FeedAdapter adapter;
+    private DynamicListView listView;
+    private ArrayList<Feed> feedList;
+
+    private boolean isScrolling = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        feedList = getAllFeeds();
         setContentView(R.layout.activity_feed_list);
         setTitle(R.string.title_feed_list);
         fetchAndRefreshFeeds();
@@ -49,10 +56,12 @@ public class FeedListActivity extends AppCompatActivity {
             }
         });
 
-        adapter = new FeedAdapter(this,R.id.feed_list,getAllFeeds());
+        adapter = new FeedAdapter(this,R.id.feed_list,feedList);
 
-        final ListView listView = (ListView) findViewById(R.id.feed_list);
+        listView = (DynamicListView) findViewById(R.id.feed_list);
+        listView.setFeedList(feedList);
         listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -64,10 +73,27 @@ public class FeedListActivity extends AppCompatActivity {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 int topRowVerticalPosition =
                         listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
-                feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+//                feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+                if (isScrolling()) {
+                    feedSwipeRefresh.setEnabled(false);
+                } else {
+                    feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+                }
             }
         });
 
+    }
+
+    public void setScrolling(boolean scrolling) {
+        isScrolling = scrolling;
+    }
+
+    public boolean isScrolling() {
+        return isScrolling;
+    }
+
+    public SwipeRefreshLayout getFeedSwipeRefresh() {
+        return feedSwipeRefresh;
     }
 
     public void addNewFeed(View view){
@@ -87,7 +113,7 @@ public class FeedListActivity extends AppCompatActivity {
             feedDao.save(feed);
         }
         session.clear();
-        adapter.updateFeeds(getAllFeeds());
+        adapter.updateFeeds(getAllFeeds(), listView);
         feedSwipeRefresh.setRefreshing(false);
     }
 
