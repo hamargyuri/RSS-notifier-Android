@@ -104,18 +104,6 @@ public class DynamicListView extends ListView {
     private boolean mIsWaitingForScrollFinish = false;
     private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-    private boolean isScrolling = false;
-
-    public boolean getIsScrolling() {
-        return isScrolling;
-    }
-
-    public void setIsScrolling(boolean isScrolling) {
-        Log.d("TAG", "setIsScrolling: SET TO: " +isScrolling);
-        this.isScrolling = isScrolling;
-    }
-
-
     public DynamicListView(Context context) {
         super(context);
         init(context);
@@ -149,11 +137,8 @@ public class DynamicListView extends ListView {
 
                     int position = pointToPosition(mDownX, mDownY);
                     int itemNum = position - getFirstVisiblePosition();
-
-//                    ((FeedListActivity)getContext()).setScrolling(true);
-                    setIsScrolling(true);
-                    ((FeedListActivity)getContext()).listener.setIsScrolling(true);
-                    ((FeedListActivity)getContext()).toggleSwipeRefresh(!true);
+                    ((FeedListActivity)getContext()).setDisableSwipeRefresh(true);
+                    ((FeedListActivity)getContext()).toggleSwipeRefresh(false);
 
                     View selectedView = getChildAt(itemNum);
                     mMobileItemId = getAdapter().getItemId(position);
@@ -295,9 +280,6 @@ public class DynamicListView extends ListView {
 
                     handleCellSwitch();
 
-                    setIsScrolling(true);
-                    ((FeedListActivity)getContext()).listener.setIsScrolling(true);
-
                     mIsMobileScrolling = false;
 
                     handleMobileCellScroll();
@@ -305,20 +287,15 @@ public class DynamicListView extends ListView {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                setIsScrolling(false);
-                ((FeedListActivity)getContext()).listener.setIsScrolling(false);
-                ((FeedListActivity)getContext()).toggleSwipeRefresh(!false);
-
+                ((FeedListActivity)getContext()).setDisableSwipeRefresh(false);
+                ((FeedListActivity)getContext()).toggleSwipeRefresh(true);
 
                 touchEventsEnded();
                 ((FeedAdapter) getAdapter()).updateFeedsInDB(mFeedList);
                 break;
             case MotionEvent.ACTION_CANCEL:
-                setIsScrolling(false);
-                ((FeedListActivity)getContext()).listener.setIsScrolling(false);
-                ((FeedListActivity)getContext()).toggleSwipeRefresh(!false);
-
-
+                ((FeedListActivity)getContext()).setDisableSwipeRefresh(false);
+                ((FeedListActivity)getContext()).toggleSwipeRefresh(true);
                 touchEventsCancelled();
                 break;
             case MotionEvent.ACTION_POINTER_UP:
@@ -330,11 +307,8 @@ public class DynamicListView extends ListView {
                         MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                 final int pointerId = event.getPointerId(pointerIndex);
                 if (pointerId == mActivePointerId) {
-                    setIsScrolling(false);
-                    ((FeedListActivity)getContext()).listener.setIsScrolling(false);
-                    ((FeedListActivity)getContext()).toggleSwipeRefresh(!false);
-
-
+                    ((FeedListActivity)getContext()).setDisableSwipeRefresh(false);
+                    ((FeedListActivity)getContext()).toggleSwipeRefresh(true);
                     touchEventsEnded();
                 }
                 break;
@@ -432,7 +406,6 @@ public class DynamicListView extends ListView {
      */
     private void touchEventsEnded () {
         final View mobileView = getViewForID(mMobileItemId);
-        setIsScrolling(false);
         if (mCellIsMobile|| mIsWaitingForScrollFinish) {
             mCellIsMobile = false;
             mIsWaitingForScrollFinish = false;
@@ -485,7 +458,6 @@ public class DynamicListView extends ListView {
      */
     private void touchEventsCancelled () {
         View mobileView = getViewForID(mMobileItemId);
-        setIsScrolling(false);
         if (mCellIsMobile) {
             mAboveItemId = INVALID_ID;
             mMobileItemId = INVALID_ID;
@@ -609,7 +581,6 @@ public class DynamicListView extends ListView {
                     handleMobileCellScroll();
                 } else if (mIsWaitingForScrollFinish) {
                     touchEventsEnded();
-                    setIsScrolling(false);
                 }
             }
         }

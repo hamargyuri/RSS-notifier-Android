@@ -51,7 +51,7 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         TextView title = (TextView) convertView.findViewById(R.id.feed_title);
         TextView date = (TextView) convertView.findViewById(R.id.feed_update_date);
 
-        title.setText(feed.getTitle() != null ? feed.getTitle() + " @ " + feed.getPosition() : "no title");
+        title.setText(feed.getTitle() != null ? feed.getTitle() : "no title");
         date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
 
         ImageButton editButton = (ImageButton) convertView.findViewById(R.id.edit_button);
@@ -89,15 +89,12 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         }
     }
 
-    public void updateFeeds(ArrayList<Feed> feeds, DynamicListView listView){
-//        listView.setFeedList(feeds);
+    public void updateFeeds(ArrayList<Feed> feeds){
         mIdMap.clear();
         for (int i = 0; i < feeds.size(); ++i) {
             mIdMap.put(feeds.get(i), i);
             feeds.get(i).setPosition(i);
             session.getFeedDao().save(feeds.get(i));
-
-            Log.d("TAG", "updateFeeds: " +feeds.get(i).getTitle() + i);
         }
         clear();
         addAll(feeds);

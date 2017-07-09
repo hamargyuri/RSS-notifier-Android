@@ -29,7 +29,6 @@ import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
-import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,9 +43,12 @@ public class FeedListActivity extends AppCompatActivity {
     private FeedAdapter adapter;
     private DynamicListView listView;
     private ArrayList<Feed> feedList;
-    public MyOnScrollListener listener;
+    private MyOnScrollListener listener;
+    private boolean disableSwipeRefresh = false;
 
-    private boolean isScrolling = false;
+    public void setDisableSwipeRefresh(boolean disableSwipeRefresh) {
+        this.disableSwipeRefresh = disableSwipeRefresh;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,6 @@ public class FeedListActivity extends AppCompatActivity {
                 fetchAndRefreshFeeds();
             }
         });
-
         adapter = new FeedAdapter(this,R.id.feed_list,feedList);
 
         listView = (DynamicListView) findViewById(R.id.feed_list);
@@ -71,52 +72,15 @@ public class FeedListActivity extends AppCompatActivity {
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         listener = new MyOnScrollListener();
-        listener.setFeedSwipeRefresh(feedSwipeRefresh);
         listener.setListView(listView);
-
-//        listener = new AbsListView.OnScrollListener() {
-//            private boolean isScrolling = false;
-//
-//            public void setIsScrolling(boolean isScrolling){ this.isScrolling = isScrolling; }
-//            @Override
-//            public void onScrollStateChanged(AbsListView view, int scrollState) {
-//
-//            }
-//
-//            @Override
-//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//                int topRowVerticalPosition =
-//                        listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
-//                feedSwipeRefresh.setEnabled((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && !listView.getIsScrolling());
-//                Log.d("TAG", "onScroll: DISABLE / ENABLE: "+ ((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && !listView.getIsScrolling()));
-////                if (isScrolling()) {
-////                    feedSwipeRefresh.setEnabled(false);
-////                    Log.d("TAG", "onScroll: FALSE");
-////                } else {
-////                    feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-////                    Log.d("TAG", "onScroll: " + (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
-////                }
-//            }
-//        };
-
-
-
+        listener.setFeedSwipeRefresh(feedSwipeRefresh);
         listView.setOnScrollListener(listener);
-
     }
 
     public void toggleSwipeRefresh(boolean toggle) {
         Log.d("TAG", "onScroll: TOGGLED: " + toggle);
-
         feedSwipeRefresh.setEnabled(toggle);
-    }
-
-    public boolean isScrolling() {
-        return isScrolling;
-    }
-
-    public SwipeRefreshLayout getFeedSwipeRefresh() {
-        return feedSwipeRefresh;
+        listener.setDisableSwipeRefresh(!toggle);
     }
 
     public void addNewFeed(View view){
@@ -136,7 +100,7 @@ public class FeedListActivity extends AppCompatActivity {
             feedDao.save(feed);
         }
         session.clear();
-        adapter.updateFeeds(getAllFeeds(), listView);
+        adapter.updateFeeds(getAllFeeds());
         feedSwipeRefresh.setRefreshing(false);
     }
 
