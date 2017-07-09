@@ -23,16 +23,18 @@ public class Feed implements Parcelable {
     private Date latestItemDate;
     private String notificationTitle;
     private boolean notificationEnabled;
+    private int position;
 
-    @Generated(hash = 1667397730)
+    @Generated(hash = 679440485)
     public Feed(Long id, String title, String url, Date latestItemDate,
-            String notificationTitle, boolean notificationEnabled) {
+            String notificationTitle, boolean notificationEnabled, int position) {
         this.id = id;
         this.title = title;
         this.url = url;
         this.latestItemDate = latestItemDate;
         this.notificationTitle = notificationTitle;
         this.notificationEnabled = notificationEnabled;
+        this.position = position;
     }
 
     @Generated(hash = 1810414124)
@@ -79,11 +81,16 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
     }
 
-    public boolean getNotificationEnabled() {return this.notificationEnabled;}
+    public boolean getNotificationEnabled() { return this.notificationEnabled; }
 
     public void setNotificationEnabled(boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
     }
+
+    public int getPosition() { return position; }
+
+    public void setPosition(int position) { this.position = position; }
+
 
     @Override
     public int describeContents() {
@@ -98,8 +105,8 @@ public class Feed implements Parcelable {
         dest.writeLong(this.latestItemDate != null ? this.latestItemDate.getTime() : -1);
         dest.writeString(this.notificationTitle);
         dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.position);
     }
-
 
     protected Feed(Parcel in) {
         this.id = (Long) in.readValue(Long.class.getClassLoader());
@@ -109,6 +116,7 @@ public class Feed implements Parcelable {
         this.latestItemDate = tmpLatestItemDate == -1 ? null : new Date(tmpLatestItemDate);
         this.notificationTitle = in.readString();
         this.notificationEnabled = in.readByte() != 0;
+        this.position = in.readInt();
     }
 
     public static final Creator<Feed> CREATOR = new Creator<Feed>() {

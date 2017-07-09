@@ -1,20 +1,26 @@
 package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
+import hamargyuri.rss_notifier.listener.MyOnScrollListener;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.adapter.FeedAdapter;
@@ -38,6 +44,7 @@ public class FeedListActivity extends AppCompatActivity {
     private FeedAdapter adapter;
     private DynamicListView listView;
     private ArrayList<Feed> feedList;
+    public MyOnScrollListener listener;
 
     private boolean isScrolling = false;
 
@@ -63,29 +70,45 @@ public class FeedListActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
+        listener = new MyOnScrollListener();
+        listener.setFeedSwipeRefresh(feedSwipeRefresh);
+        listener.setListView(listView);
 
-            }
+//        listener = new AbsListView.OnScrollListener() {
+//            private boolean isScrolling = false;
+//
+//            public void setIsScrolling(boolean isScrolling){ this.isScrolling = isScrolling; }
+//            @Override
+//            public void onScrollStateChanged(AbsListView view, int scrollState) {
+//
+//            }
+//
+//            @Override
+//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//                int topRowVerticalPosition =
+//                        listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
+//                feedSwipeRefresh.setEnabled((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && !listView.getIsScrolling());
+//                Log.d("TAG", "onScroll: DISABLE / ENABLE: "+ ((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && !listView.getIsScrolling()));
+////                if (isScrolling()) {
+////                    feedSwipeRefresh.setEnabled(false);
+////                    Log.d("TAG", "onScroll: FALSE");
+////                } else {
+////                    feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+////                    Log.d("TAG", "onScroll: " + (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
+////                }
+//            }
+//        };
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                int topRowVerticalPosition =
-                        listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
-//                feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-                if (isScrolling()) {
-                    feedSwipeRefresh.setEnabled(false);
-                } else {
-                    feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-                }
-            }
-        });
+
+
+        listView.setOnScrollListener(listener);
 
     }
 
-    public void setScrolling(boolean scrolling) {
-        isScrolling = scrolling;
+    public void toggleSwipeRefresh(boolean toggle) {
+        Log.d("TAG", "onScroll: TOGGLED: " + toggle);
+
+        feedSwipeRefresh.setEnabled(toggle);
     }
 
     public boolean isScrolling() {
@@ -160,6 +183,19 @@ public class FeedListActivity extends AppCompatActivity {
     public ArrayList<Feed> getAllFeeds(){
         FeedDao feedDao = session.getFeedDao();
         ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
+//        for (int i = 0; i < feeds.size(); i++) {
+//            Log.d("TAG", "getAllFeeds: " + feeds.get(i).getTitle() + feeds.get(i).getPosition());
+//        }
+        Collections.sort(feeds, new Comparator<Feed>() {
+            @Override
+            public int compare(Feed o1, Feed o2) {
+                return Integer.compare(o1.getPosition(), o2.getPosition());
+            }
+        });
+
+//        for (int i = 0; i < feeds.size(); i++) {
+//            Log.d("TAG", "getAllFeeds: " + feeds.get(i).getTitle() + feeds.get(i).getPosition());
+//        }
         session.clear();
         return feeds;
     }

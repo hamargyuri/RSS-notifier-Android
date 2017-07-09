@@ -16,11 +16,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import hamargyuri.rss_notifier.R;
+import hamargyuri.rss_notifier.RSSNotifierApp;
+import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.view.DynamicListView;
 import hamargyuri.rss_notifier.view.FeedDetailsActivity;
 
+
 public class FeedAdapter extends ArrayAdapter<Feed> {
+    private DaoSession session = RSSNotifierApp.getSession();
 
     final int INVALID_ID = -1;
 
@@ -47,7 +51,7 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         TextView title = (TextView) convertView.findViewById(R.id.feed_title);
         TextView date = (TextView) convertView.findViewById(R.id.feed_update_date);
 
-        title.setText(feed.getTitle() != null ? feed.getTitle() : "no title");
+        title.setText(feed.getTitle() != null ? feed.getTitle() + " @ " + feed.getPosition() : "no title");
         date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
 
         ImageButton editButton = (ImageButton) convertView.findViewById(R.id.edit_button);
@@ -76,11 +80,24 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         return true;
     }
 
+    public void updateFeedsInDB(ArrayList<Feed> feeds) {
+        mIdMap.clear();
+        for (int i = 0; i < feeds.size(); i++) {
+            mIdMap.put(feeds.get(i), i);
+            feeds.get(i).setPosition(i);
+            session.getFeedDao().save(feeds.get(i));
+        }
+    }
+
     public void updateFeeds(ArrayList<Feed> feeds, DynamicListView listView){
 //        listView.setFeedList(feeds);
         mIdMap.clear();
         for (int i = 0; i < feeds.size(); ++i) {
             mIdMap.put(feeds.get(i), i);
+            feeds.get(i).setPosition(i);
+            session.getFeedDao().save(feeds.get(i));
+
+            Log.d("TAG", "updateFeeds: " +feeds.get(i).getTitle() + i);
         }
         clear();
         addAll(feeds);
