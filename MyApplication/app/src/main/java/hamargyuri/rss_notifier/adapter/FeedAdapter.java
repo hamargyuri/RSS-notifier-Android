@@ -11,15 +11,28 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import hamargyuri.rss_notifier.R;
+import hamargyuri.rss_notifier.RSSNotifierApp;
+import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.view.FeedDetailsActivity;
 
+
 public class FeedAdapter extends ArrayAdapter<Feed> {
+    private DaoSession session = RSSNotifierApp.getSession();
+
+    final int INVALID_ID = -1;
+
+    HashMap<Feed, Integer> mIdMap = new HashMap<Feed, Integer>();
+
 
     public FeedAdapter(Context context, int layoutId, ArrayList<Feed> feeds) {
         super(context, layoutId, feeds);
+        for (int i = 0; i < feeds.size(); ++i) {
+            mIdMap.put(feeds.get(i), i);
+        }
     }
 
     @NonNull
@@ -50,9 +63,39 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         return convertView;
     }
 
+    @Override
+    public long getItemId(int position) {
+        if (position < 0 || position >= mIdMap.size()) {
+            return INVALID_ID;
+        }
+        Feed item = getItem(position);
+        return mIdMap.get(item);
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    public void updateFeedsInDB(ArrayList<Feed> feeds) {
+        mIdMap.clear();
+        for (int i = 0; i < feeds.size(); i++) {
+            mIdMap.put(feeds.get(i), i);
+            feeds.get(i).setPosition(i);
+            session.getFeedDao().save(feeds.get(i));
+        }
+    }
+
     public void updateFeeds(ArrayList<Feed> feeds){
-        this.clear();
-        this.addAll(feeds);
+        mIdMap.clear();
+        for (int i = 0; i < feeds.size(); ++i) {
+            mIdMap.put(feeds.get(i), i);
+            feeds.get(i).setPosition(i);
+            session.getFeedDao().save(feeds.get(i));
+        }
+        clear();
+        addAll(feeds);
+
         notifyDataSetChanged();
     }
 }

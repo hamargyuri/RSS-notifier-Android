@@ -6,15 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ListView;
 
-
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
+import hamargyuri.rss_notifier.listener.MyOnScrollListener;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.adapter.FeedAdapter;
@@ -23,7 +24,6 @@ import hamargyuri.rss_notifier.model.RSSItem;
 import hamargyuri.rss_notifier.model.RSSChannel;
 import hamargyuri.rss_notifier.model.RSSFeed;
 import hamargyuri.rss_notifier.network.RSSFactory;
-import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,13 +31,26 @@ import retrofit2.Response;
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 public class FeedListActivity extends AppCompatActivity {
+
+
     private SwipeRefreshLayout feedSwipeRefresh;
     private DaoSession session = RSSNotifierApp.getSession();
     private FeedAdapter adapter;
+    private DynamicListView listView;
+    private ArrayList<Feed> feedList;
+    private MyOnScrollListener listener;
+    private boolean disableSwipeRefresh = false;
+
+    public MyOnScrollListener getListener() { return listener; }
+
+    public void setDisableSwipeRefresh(boolean disableSwipeRefresh) {
+        this.disableSwipeRefresh = disableSwipeRefresh;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        feedList = getAllFeeds();
         setContentView(R.layout.activity_feed_list);
         setTitle(R.string.title_feed_list);
         fetchAndRefreshFeeds();
@@ -48,26 +61,23 @@ public class FeedListActivity extends AppCompatActivity {
                 fetchAndRefreshFeeds();
             }
         });
+        adapter = new FeedAdapter(this,R.id.feed_list,feedList);
 
-        adapter = new FeedAdapter(this,R.id.feed_list,getAllFeeds());
-
-        final ListView listView = (ListView) findViewById(R.id.feed_list);
+        listView = (DynamicListView) findViewById(R.id.feed_list);
+        listView.setFeedList(feedList);
         listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
+        listener = new MyOnScrollListener();
+        listener.setListView(listView);
+        listener.setFeedSwipeRefresh(feedSwipeRefresh);
+        listView.setOnScrollListener(listener);
+    }
 
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                int topRowVerticalPosition =
-                        listView.getChildCount() == 0 ? 0 : listView.getChildAt(0).getTop();
-                feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-            }
-        });
-
+    public void toggleSwipeRefresh(boolean toggle) {
+        Log.d("FeedListActivity", "toggleSwipeRefresh: TOGGLED: " + toggle);
+        listener.setDisableSwipeRefresh(!toggle);
+        listener.evaluateToggle(listener.getFirstVisibleItem());
     }
 
     public void addNewFeed(View view){
@@ -134,6 +144,12 @@ public class FeedListActivity extends AppCompatActivity {
     public ArrayList<Feed> getAllFeeds(){
         FeedDao feedDao = session.getFeedDao();
         ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
+        Collections.sort(feeds, new Comparator<Feed>() {
+            @Override
+            public int compare(Feed o1, Feed o2) {
+                return Integer.compare(o1.getPosition(), o2.getPosition());
+            }
+        });
         session.clear();
         return feeds;
     }
