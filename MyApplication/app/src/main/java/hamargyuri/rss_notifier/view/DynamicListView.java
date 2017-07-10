@@ -28,6 +28,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -40,6 +42,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.adapter.FeedAdapter;
 import hamargyuri.rss_notifier.model.Feed;
 
@@ -68,7 +71,7 @@ public class DynamicListView extends ListView {
 
     private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 150;
     private final int MOVE_DURATION = 150;
-    private final int LINE_THICKNESS = 15;
+    private final int LINE_THICKNESS = 10;
 
     public ArrayList<Feed> mFeedList;
 
@@ -181,7 +184,7 @@ public class DynamicListView extends ListView {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(LINE_THICKNESS);
-        paint.setColor(Color.BLACK);
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
 
         can.drawBitmap(bitmap, 0, 0, null);
         can.drawRect(rect, paint);

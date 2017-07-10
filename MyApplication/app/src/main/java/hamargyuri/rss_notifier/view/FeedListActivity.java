@@ -41,6 +41,8 @@ public class FeedListActivity extends AppCompatActivity {
     private MyOnScrollListener listener;
     private boolean disableSwipeRefresh = false;
 
+    public MyOnScrollListener getListener() { return listener; }
+
     public void setDisableSwipeRefresh(boolean disableSwipeRefresh) {
         this.disableSwipeRefresh = disableSwipeRefresh;
     }
@@ -73,9 +75,10 @@ public class FeedListActivity extends AppCompatActivity {
     }
 
     public void toggleSwipeRefresh(boolean toggle) {
-        Log.d("TAG", "onScroll: TOGGLED: " + toggle);
+        Log.d("FeedListActivity", "toggleSwipeRefresh: TOGGLED: " + toggle);
         feedSwipeRefresh.setEnabled(toggle);
         listener.setDisableSwipeRefresh(!toggle);
+        listener.evaluateToggle(listener.getFirstVisibleItem());
     }
 
     public void addNewFeed(View view){
