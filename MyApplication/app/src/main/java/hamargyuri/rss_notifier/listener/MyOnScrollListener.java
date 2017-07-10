@@ -9,7 +9,6 @@ import hamargyuri.rss_notifier.view.DynamicListView;
 
 public class MyOnScrollListener implements AbsListView.OnScrollListener {
     private boolean disableSwipeRefresh = false;
-    private boolean evaluate = true;
     private DynamicListView listView;
     private SwipeRefreshLayout feedSwipeRefresh;
     private int firstVisibleItem;
@@ -17,8 +16,6 @@ public class MyOnScrollListener implements AbsListView.OnScrollListener {
     public int getFirstVisibleItem() { return firstVisibleItem; }
 
     public void setDisableSwipeRefresh(boolean disableSwipeRefresh){ this.disableSwipeRefresh = disableSwipeRefresh; }
-
-    public void setEvaluate(boolean evaluate) { this.evaluate = evaluate; }
 
     public void setListView(DynamicListView listView) { this.listView = listView; }
 
@@ -41,8 +38,6 @@ public class MyOnScrollListener implements AbsListView.OnScrollListener {
             feedSwipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
             Log.d("MyOnScrollListener", "onScroll: "+ (firstVisibleItem == 0 && topRowVerticalPosition >= 0));
         }
-//        feedSwipeRefresh.setEnabled((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && (!disableSwipeRefresh || evaluate));
-//        Log.d("MyOnScrollListener", "onScroll: DISABLE / ENABLE: "+ ((firstVisibleItem == 0 && topRowVerticalPosition >= 0) && !disableSwipeRefresh));
     }
 
     public void evaluateToggle(int firstVisibleItem) {

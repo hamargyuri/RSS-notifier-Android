@@ -76,7 +76,6 @@ public class FeedListActivity extends AppCompatActivity {
 
     public void toggleSwipeRefresh(boolean toggle) {
         Log.d("FeedListActivity", "toggleSwipeRefresh: TOGGLED: " + toggle);
-        feedSwipeRefresh.setEnabled(toggle);
         listener.setDisableSwipeRefresh(!toggle);
         listener.evaluateToggle(listener.getFirstVisibleItem());
     }
