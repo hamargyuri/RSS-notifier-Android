@@ -144,19 +144,12 @@ public class FeedListActivity extends AppCompatActivity {
     public ArrayList<Feed> getAllFeeds(){
         FeedDao feedDao = session.getFeedDao();
         ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
-//        for (int i = 0; i < feeds.size(); i++) {
-//            Log.d("TAG", "getAllFeeds: " + feeds.get(i).getTitle() + feeds.get(i).getPosition());
-//        }
         Collections.sort(feeds, new Comparator<Feed>() {
             @Override
             public int compare(Feed o1, Feed o2) {
                 return Integer.compare(o1.getPosition(), o2.getPosition());
             }
         });
-
-//        for (int i = 0; i < feeds.size(); i++) {
-//            Log.d("TAG", "getAllFeeds: " + feeds.get(i).getTitle() + feeds.get(i).getPosition());
-//        }
         session.clear();
         return feeds;
     }
