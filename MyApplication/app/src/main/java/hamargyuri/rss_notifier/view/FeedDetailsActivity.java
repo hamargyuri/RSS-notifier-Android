@@ -1,19 +1,16 @@
 package hamargyuri.rss_notifier.view;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -174,12 +171,20 @@ public class FeedDetailsActivity extends AppCompatActivity{
         launchFeedListActivity();
     }
 
+    private int getNumberOfFeeds() {
+        FeedDao feedDao = session.getFeedDao();
+        ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
+        return feeds.size();
+    }
+
     private Feed handleNewFeed(FeedDao feedDao, String feedTitle) {
         if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
             Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
             return null;
         }
+        Feed feed = new Feed();
+        feed.setPosition(getNumberOfFeeds() + 1);
+        return feed;
 
-        return new Feed();
     }
 }
