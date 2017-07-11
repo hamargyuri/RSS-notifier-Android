@@ -6,105 +6,141 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite">
 
-
-    <TextView
-        android:id="@+id/header_feed_title"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/feed_title_form"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:text="@string/header_title"
+        android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+        <TextView
+            android:id="@+id/header_feed_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="18sp"
+            android:text="@string/header_title"
+            />
 
-        />
-    <EditText
-        android:id="@+id/input_feed_title"
-        android:layout_width="0dp"
+        <EditText
+            android:id="@+id/input_feed_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:hint="@string/input_title"
+            android:inputType="textMultiLine"
+            android:maxLength="50"
+            />
+
+        <TextView
+            android:id="@+id/read_feed_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="9dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/feed_url_form"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="@string/input_title"
-        android:inputType="textShortMessage"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/header_feed_title"
-        />
+        app:layout_constraintTop_toBottomOf="@id/feed_title_form">
+        <TextView
+            android:id="@+id/header_feed_url"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="18sp"
+            android:text="@string/header_url"
+            />
 
-    <TextView
-        android:id="@+id/header_feed_url"
-        android:layout_width="0dp"
+        <EditText
+            android:id="@+id/input_feed_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/input_url"
+            android:inputType="textMultiLine|textUri"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            />
+
+        <TextView
+            android:id="@+id/read_feed_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="9dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/notification_title_form"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:text="@string/header_url"
-        app:layout_constraintTop_toBottomOf="@id/input_feed_title"
+        android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        />
+        app:layout_constraintTop_toBottomOf="@id/feed_url_form">
+        <TextView
+            android:id="@+id/header_notification_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="18sp"
+            android:text="@string/header_notification"
+            />
 
-    <EditText
-        android:id="@+id/input_feed_url"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/input_url"
-        android:inputType="textMultiLine|textUri"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/header_feed_url"
-        app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        <EditText
+            android:id="@+id/input_notification_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:hint="@string/input_notification"
+            android:inputType="textMultiLine"
+            android:maxLength="50"
 
-    <TextView
-        android:id="@+id/header_notification_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:text="@string/header_notification"
-        app:layout_constraintTop_toBottomOf="@id/input_feed_url"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+            />
 
-    <EditText
-        android:id="@+id/input_notification"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="@string/input_notification"
-        android:inputType="textLongMessage"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/header_notification_title" />
+        <TextView
+            android:id="@+id/read_notification_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="9dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+
+    </LinearLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/save_or_edit_button"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -113,7 +149,7 @@
         android:onClick="addOrUpdateFeed"
         android:text="@string/button_save_feed"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_notification" />
+        app:layout_constraintTop_toBottomOf="@+id/notification_title_form" />
 
     <Switch
         android:id="@+id/notification_switch"
@@ -125,7 +161,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_notification"
+        app:layout_constraintTop_toBottomOf="@+id/notification_title_form"
         android:textSize="18sp"
         android:theme="@style/SwitchButton"
         />
