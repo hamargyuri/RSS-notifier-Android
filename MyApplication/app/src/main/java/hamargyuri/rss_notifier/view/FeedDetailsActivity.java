@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -29,8 +30,8 @@ public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
     private boolean isNewEntry = true;
     private Feed mFeed;
+    private boolean editMode = true;
     private final float longClickTime = 1000.0f;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +47,24 @@ public class FeedDetailsActivity extends AppCompatActivity{
             isNewEntry = false;
 
             swapToViewMode();
-            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
             prepareDeleteButton();
+            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
+            notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        mFeed.setNotificationEnabled(true);
+                    } else {
+                        mFeed.setNotificationEnabled(false);
+                    }
+                    FeedDao feedDao = session.getFeedDao();
+                    feedDao.save(mFeed);
+                }
+            });
         }
     }
 
     private void swapToViewMode() {
+        editMode = false;
         EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
         EditText editTextUrl = (EditText) findViewById(R.id.input_feed_url);
         EditText editTextNotification = (EditText) findViewById(R.id.input_notification_title);
@@ -80,6 +93,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
     }
 
     private void swapToEditMode() {
+        editMode = true;
         TextView textViewTitle = (TextView) findViewById(R.id.read_feed_title);
         TextView textViewUrl = (TextView) findViewById(R.id.read_feed_url);
         TextView textViewNotification = (TextView) findViewById(R.id.read_notification_title);
@@ -178,7 +192,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         feedDao.delete(feed);
         Toast.makeText(this, "Feed deleted", Toast.LENGTH_LONG).show();
     }
-    
+
     public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
@@ -240,6 +254,14 @@ public class FeedDetailsActivity extends AppCompatActivity{
         Feed feed = new Feed();
         feed.setPosition(getNumberOfFeeds() + 1);
         return feed;
+    }
 
+    @Override
+    public void onBackPressed() {
+        if(editMode && mFeed != null) {
+            swapToViewMode();
+        } else {
+            launchFeedListActivity();
+        }
     }
 }
