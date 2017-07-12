@@ -51,8 +51,7 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         title.setText(feed.getTitle() != null ? feed.getTitle() : "no title");
         date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
 
-        ImageButton editButton = (ImageButton) convertView.findViewById(R.id.edit_button);
-        editButton.setOnClickListener(new View.OnClickListener() {
+        convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mParent.getContext(), FeedDetailsActivity.class);

@@ -41,6 +41,8 @@ public class FeedListActivity extends AppCompatActivity {
     private MyOnScrollListener listener;
     private boolean disableSwipeRefresh = false;
 
+    public void setFeedList(ArrayList<Feed> feedList) { this.feedList = feedList; }
+
     public MyOnScrollListener getListener() { return listener; }
 
     public void setDisableSwipeRefresh(boolean disableSwipeRefresh) {
@@ -83,6 +85,7 @@ public class FeedListActivity extends AppCompatActivity {
     public void addNewFeed(View view){
         Intent intent = new Intent(this, FeedDetailsActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void refreshLatestFeedItem(RSSItem rssItem, String title, boolean sendNotification) {
