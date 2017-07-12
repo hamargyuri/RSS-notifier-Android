@@ -25,6 +25,7 @@ import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
 
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.Id;
 
 public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
@@ -118,7 +119,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!feedTitleAlreadyInUse(editTextTitle.getText().toString())) {
+                if (!feedTitleAlreadyInUse(mFeed.getId(),editTextTitle.getText().toString())) {
                     addOrUpdateFeed(v);
                 }
             }
@@ -265,6 +266,18 @@ public class FeedDetailsActivity extends AppCompatActivity{
         }
         return false;
     }
+
+    private boolean feedTitleAlreadyInUse(long id, String title) {
+        FeedDao feedDao = session.getFeedDao();
+        if (feedDao.queryBuilder().where(Id.notEq(id))
+                .where(Title.eq(title))
+                .unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void onBackPressed() {
