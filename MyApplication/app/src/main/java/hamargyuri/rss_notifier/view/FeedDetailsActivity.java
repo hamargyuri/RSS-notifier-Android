@@ -102,7 +102,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         textViewNotification.setVisibility(View.GONE);
 
 
-        EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
+        final EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
         EditText editTextUrl = (EditText) findViewById(R.id.input_feed_url);
         EditText editTextNotification = (EditText) findViewById(R.id.input_notification_title);
         editTextTitle.setText(mFeed.getTitle());
@@ -118,7 +118,9 @@ public class FeedDetailsActivity extends AppCompatActivity{
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addOrUpdateFeed(v);
+                if (!feedTitleAlreadyInUse(editTextTitle.getText().toString())) {
+                    addOrUpdateFeed(v);
+                }
             }
         });
     }
@@ -223,7 +225,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         FeedDao feedDao = session.getFeedDao();
 
         if (isNewEntry) {
-            mFeed = handleNewFeed(feedDao, feedTitle);
+            mFeed = handleNewFeed(feedTitle);
         }
 
         if (mFeed == null) return;
@@ -246,14 +248,22 @@ public class FeedDetailsActivity extends AppCompatActivity{
         return feeds.size();
     }
 
-    private Feed handleNewFeed(FeedDao feedDao, String feedTitle) {
-        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
-            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+    private Feed handleNewFeed(String feedTitle) {
+        if (feedTitleAlreadyInUse(feedTitle)) {
             return null;
         }
         Feed feed = new Feed();
         feed.setPosition(getNumberOfFeeds() + 1);
         return feed;
+    }
+
+    private boolean feedTitleAlreadyInUse(String feedTitle) {
+        FeedDao feedDao = session.getFeedDao();
+        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
     }
 
     @Override

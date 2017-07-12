@@ -18,7 +18,7 @@
 
         <hamargyuri.rss_notifier.view.DynamicListView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/feed_list"
             >
         </hamargyuri.rss_notifier.view.DynamicListView>
