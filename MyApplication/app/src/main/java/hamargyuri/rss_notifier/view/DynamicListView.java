@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -71,7 +72,8 @@ public class DynamicListView extends ListView {
 
     private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 150;
     private final int MOVE_DURATION = 150;
-    private final int LINE_THICKNESS = 10;
+    private final int LINE_THICKNESS = 6;
+    private final float LINE_ROUNDNESS = 45.0f;
 
     public ArrayList<Feed> mFeedList;
 
@@ -184,7 +186,9 @@ public class DynamicListView extends ListView {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(LINE_THICKNESS);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        CornerPathEffect corEffect = new CornerPathEffect(LINE_ROUNDNESS);
+        paint.setPathEffect(corEffect);
+        paint.setColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
 
         can.drawBitmap(bitmap, 0, 0, null);
         can.drawRect(rect, paint);
