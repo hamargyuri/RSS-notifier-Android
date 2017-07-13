@@ -24,10 +24,12 @@ public class Feed implements Parcelable {
     private String notificationTitle;
     private boolean notificationEnabled;
     private int position;
+    private int refreshInterval;
 
-    @Generated(hash = 679440485)
+    @Generated(hash = 1813830170)
     public Feed(Long id, String title, String url, Date latestItemDate,
-            String notificationTitle, boolean notificationEnabled, int position) {
+            String notificationTitle, boolean notificationEnabled, int position,
+            int refreshInterval) {
         this.id = id;
         this.title = title;
         this.url = url;
@@ -35,6 +37,7 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
         this.notificationEnabled = notificationEnabled;
         this.position = position;
+        this.refreshInterval = refreshInterval;
     }
 
     @Generated(hash = 1810414124)
@@ -92,6 +95,14 @@ public class Feed implements Parcelable {
     public void setPosition(int position) { this.position = position; }
 
 
+    public int getRefreshInterval() {
+        return refreshInterval;
+    }
+
+    public void setRefreshInterval(int refreshInterval) {
+        this.refreshInterval = refreshInterval;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -106,6 +117,7 @@ public class Feed implements Parcelable {
         dest.writeString(this.notificationTitle);
         dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
         dest.writeInt(this.position);
+        dest.writeInt(this.refreshInterval);
     }
 
     protected Feed(Parcel in) {
@@ -117,6 +129,7 @@ public class Feed implements Parcelable {
         this.notificationTitle = in.readString();
         this.notificationEnabled = in.readByte() != 0;
         this.position = in.readInt();
+        this.refreshInterval= in.readInt();
     }
 
     public static final Creator<Feed> CREATOR = new Creator<Feed>() {
