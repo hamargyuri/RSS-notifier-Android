@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.Id;
 
 import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Index;
 
 /**
  * Created by hamargyuri on 2017. 05. 25..
@@ -17,19 +18,20 @@ import org.greenrobot.greendao.annotation.Generated;
 public class Feed implements Parcelable {
     @Id(autoincrement = true)
     private Long id;
-
+    @Index(unique = true)
     private String title;
     private String url;
     private Date latestItemDate;
     private String notificationTitle;
     private boolean notificationEnabled;
     private int position;
-    private int refreshInterval;
+    private int refreshIntervalInMinutes;
+    private int minutesSinceLastRefresh = 0;
 
-    @Generated(hash = 1813830170)
+    @Generated(hash = 872555593)
     public Feed(Long id, String title, String url, Date latestItemDate,
             String notificationTitle, boolean notificationEnabled, int position,
-            int refreshInterval) {
+            int refreshIntervalInMinutes, int minutesSinceLastRefresh) {
         this.id = id;
         this.title = title;
         this.url = url;
@@ -37,7 +39,8 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
         this.notificationEnabled = notificationEnabled;
         this.position = position;
-        this.refreshInterval = refreshInterval;
+        this.refreshIntervalInMinutes = refreshIntervalInMinutes;
+        this.minutesSinceLastRefresh = minutesSinceLastRefresh;
     }
 
     @Generated(hash = 1810414124)
@@ -95,12 +98,20 @@ public class Feed implements Parcelable {
     public void setPosition(int position) { this.position = position; }
 
 
-    public int getRefreshInterval() {
-        return refreshInterval;
+    public int getRefreshIntervalInMinutes() {
+        return refreshIntervalInMinutes;
     }
 
-    public void setRefreshInterval(int refreshInterval) {
-        this.refreshInterval = refreshInterval;
+    public void setRefreshIntervalInMinutes(int refreshIntervalInMinutes) {
+        this.refreshIntervalInMinutes = refreshIntervalInMinutes;
+    }
+
+    public int getMinutesSinceLastRefresh() {
+        return minutesSinceLastRefresh;
+    }
+
+    public void setMinutesSinceLastRefresh(int minutesSinceLastRefresh) {
+        this.minutesSinceLastRefresh = minutesSinceLastRefresh;
     }
 
     @Override
@@ -117,7 +128,8 @@ public class Feed implements Parcelable {
         dest.writeString(this.notificationTitle);
         dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
         dest.writeInt(this.position);
-        dest.writeInt(this.refreshInterval);
+        dest.writeInt(this.refreshIntervalInMinutes);
+        dest.writeInt(this.minutesSinceLastRefresh);
     }
 
     protected Feed(Parcel in) {
@@ -129,7 +141,8 @@ public class Feed implements Parcelable {
         this.notificationTitle = in.readString();
         this.notificationEnabled = in.readByte() != 0;
         this.position = in.readInt();
-        this.refreshInterval= in.readInt();
+        this.refreshIntervalInMinutes = in.readInt();
+        this.minutesSinceLastRefresh = in.readInt();
     }
 
     public static final Creator<Feed> CREATOR = new Creator<Feed>() {
