@@ -6,8 +6,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -22,13 +25,14 @@ import hamargyuri.rss_notifier.model.Feed;
 import hamargyuri.rss_notifier.model.FeedDao;
 
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.Id;
 
 public class FeedDetailsActivity extends AppCompatActivity{
     private DaoSession session = RSSNotifierApp.getSession();
     private boolean isNewEntry = true;
     private Feed mFeed;
+    private boolean editMode = true;
     private final float longClickTime = 1000.0f;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +46,86 @@ public class FeedDetailsActivity extends AppCompatActivity{
         if (mFeed != null) {
             setTitle(R.string.title_edit_feed);
             isNewEntry = false;
-            EditText title = (EditText) findViewById(R.id.input_feed_title);
-            EditText url = (EditText) findViewById(R.id.input_feed_url);
-            EditText notification = (EditText) findViewById(R.id.input_notification);
-            title.setText(mFeed.getTitle());
-            url.setText(mFeed.getUrl());
-            notification.setText(mFeed.getNotificationTitle());
-            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
 
+            swapToViewMode();
             prepareDeleteButton();
+            notificationSwitch.setChecked(mFeed.getNotificationEnabled());
+            notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        mFeed.setNotificationEnabled(true);
+                    } else {
+                        mFeed.setNotificationEnabled(false);
+                    }
+                    FeedDao feedDao = session.getFeedDao();
+                    feedDao.save(mFeed);
+                }
+            });
         }
+    }
+
+    private void swapToViewMode() {
+        editMode = false;
+        setTitle(R.string.title_view_feed);
+        EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
+        EditText editTextUrl = (EditText) findViewById(R.id.input_feed_url);
+        EditText editTextNotification = (EditText) findViewById(R.id.input_notification_title);
+        editTextTitle.setVisibility(View.GONE);
+        editTextUrl.setVisibility(View.GONE);
+        editTextNotification.setVisibility(View.GONE);
+
+        TextView textViewTitle = (TextView) findViewById(R.id.read_feed_title);
+        TextView textViewUrl = (TextView) findViewById(R.id.read_feed_url);
+        TextView textViewNotification = (TextView) findViewById(R.id.read_notification_title);
+        textViewTitle.setText(mFeed.getTitle());
+        textViewUrl.setText(mFeed.getUrl());
+        textViewNotification.setText(mFeed.getNotificationTitle());
+        textViewTitle.setVisibility(View.VISIBLE);
+        textViewUrl.setVisibility(View.VISIBLE);
+        textViewNotification.setVisibility(View.VISIBLE);
+
+        Button button = (Button) findViewById(R.id.save_or_edit_button);
+        button.setText(R.string.button_edit_feed);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                swapToEditMode();
+            }
+        });
+    }
+
+    private void swapToEditMode() {
+        editMode = true;
+        setTitle(R.string.title_edit_feed);
+        TextView textViewTitle = (TextView) findViewById(R.id.read_feed_title);
+        TextView textViewUrl = (TextView) findViewById(R.id.read_feed_url);
+        TextView textViewNotification = (TextView) findViewById(R.id.read_notification_title);
+        textViewTitle.setVisibility(View.GONE);
+        textViewUrl.setVisibility(View.GONE);
+        textViewNotification.setVisibility(View.GONE);
+
+
+        final EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
+        EditText editTextUrl = (EditText) findViewById(R.id.input_feed_url);
+        EditText editTextNotification = (EditText) findViewById(R.id.input_notification_title);
+        editTextTitle.setText(mFeed.getTitle());
+        editTextUrl.setText(mFeed.getUrl());
+        editTextNotification.setText(mFeed.getNotificationTitle());
+        editTextTitle.setVisibility(View.VISIBLE);
+        editTextUrl.setVisibility(View.VISIBLE);
+        editTextNotification.setVisibility(View.VISIBLE);
+
+
+        Button button = (Button) findViewById(R.id.save_or_edit_button);
+        button.setText(R.string.button_save_feed);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!feedTitleAlreadyInUse(mFeed.getId(),editTextTitle.getText().toString())) {
+                    addOrUpdateFeed(v);
+                }
+            }
+        });
     }
 
     public void prepareDeleteButton() {
@@ -123,11 +197,11 @@ public class FeedDetailsActivity extends AppCompatActivity{
         feedDao.delete(feed);
         Toast.makeText(this, "Feed deleted", Toast.LENGTH_LONG).show();
     }
-    
+
     public void addOrUpdateFeed(View view) {
         EditText feedTitleEdit = (EditText) findViewById(R.id.input_feed_title);
         EditText feedUrlEdit = (EditText) findViewById(R.id.input_feed_url);
-        EditText notificationTitleEdit = (EditText) findViewById(R.id.input_notification);
+        EditText notificationTitleEdit = (EditText) findViewById(R.id.input_notification_title);
 
         String feedTitle = feedTitleEdit.getText().toString();
         String feedUrl = feedUrlEdit.getText().toString();
@@ -154,7 +228,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         FeedDao feedDao = session.getFeedDao();
 
         if (isNewEntry) {
-            mFeed = handleNewFeed(feedDao, feedTitle);
+            mFeed = handleNewFeed(feedTitle);
         }
 
         if (mFeed == null) return;
@@ -177,15 +251,43 @@ public class FeedDetailsActivity extends AppCompatActivity{
         return feeds.size();
     }
 
-    private Feed handleNewFeed(FeedDao feedDao, String feedTitle) {
-        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
-            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+    private Feed handleNewFeed(String feedTitle) {
+        if (feedTitleAlreadyInUse(feedTitle)) {
             return null;
         }
         Feed feed = new Feed();
         feed.setPosition(getNumberOfFeeds() + 1);
         feed.setRefreshIntervalInMinutes(5);
         return feed;
+    }
 
+    private boolean feedTitleAlreadyInUse(String feedTitle) {
+        FeedDao feedDao = session.getFeedDao();
+        if (feedDao.queryBuilder().where(Title.eq(feedTitle)).unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean feedTitleAlreadyInUse(long id, String title) {
+        FeedDao feedDao = session.getFeedDao();
+        if (feedDao.queryBuilder().where(Id.notEq(id))
+                .where(Title.eq(title))
+                .unique() != null) {
+            Toast.makeText(this, "Title already in use", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(editMode && mFeed != null) {
+            swapToViewMode();
+        } else {
+            launchFeedListActivity();
+        }
     }
 }
