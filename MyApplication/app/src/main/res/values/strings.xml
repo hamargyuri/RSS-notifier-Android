@@ -3,6 +3,7 @@
     <string name="title_feed_list">My RSS feeds</string>
     <string name="title_new_feed">Add new RSS feed</string>
     <string name="title_edit_feed">Edit RSS feed</string>
+    <string name="title_view_feed">View RSS feed</string>
     <string name="button_save_feed">Save</string>
     <string name="button_edit_feed">Edit</string>
     <string name="feed_date_default">no saved feed</string>

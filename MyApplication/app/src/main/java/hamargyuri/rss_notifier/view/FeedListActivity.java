@@ -6,12 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
@@ -43,8 +46,6 @@ public class FeedListActivity extends AppCompatActivity {
 
     public void setFeedList(ArrayList<Feed> feedList) { this.feedList = feedList; }
 
-    public MyOnScrollListener getListener() { return listener; }
-
     public void setDisableSwipeRefresh(boolean disableSwipeRefresh) {
         this.disableSwipeRefresh = disableSwipeRefresh;
     }
@@ -74,6 +75,20 @@ public class FeedListActivity extends AppCompatActivity {
         listener.setListView(listView);
         listener.setFeedSwipeRefresh(feedSwipeRefresh);
         listView.setOnScrollListener(listener);
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                    }
+                });
+            }
+        };
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, 0, 60000); // 1 minute
     }
 
     public void toggleSwipeRefresh(boolean toggle) {

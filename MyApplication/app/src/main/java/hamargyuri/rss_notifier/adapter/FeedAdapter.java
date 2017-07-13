@@ -2,6 +2,7 @@ package hamargyuri.rss_notifier.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.ocpsoft.prettytime.PrettyTime;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import hamargyuri.rss_notifier.R;
 import hamargyuri.rss_notifier.RSSNotifierApp;
@@ -47,9 +52,13 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
 
         TextView title = (TextView) convertView.findViewById(R.id.feed_title);
         TextView date = (TextView) convertView.findViewById(R.id.feed_update_date);
+        TextView relativeTime = (TextView) convertView.findViewById(R.id.feed_relative_time);
+
 
         title.setText(feed.getTitle() != null ? feed.getTitle() : "no title");
         date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
+        relativeTime.setText(feed.getLatestItemDate() != null ? convertToRelativeTime(feed.getLatestItemDate()) : null);
+
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,5 +105,17 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         addAll(feeds);
 
         notifyDataSetChanged();
+    }
+
+    private String convertToRelativeTime(Date date) {
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = getContext().getResources().getConfiguration().getLocales().get(0);
+        } else {
+            locale = getContext().getResources().getConfiguration().locale;
+        }
+        PrettyTime p = new PrettyTime(locale);
+
+        return p.format(date);
     }
 }
