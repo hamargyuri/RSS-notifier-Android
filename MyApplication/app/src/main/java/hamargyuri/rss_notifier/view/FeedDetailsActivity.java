@@ -234,7 +234,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         if (mFeed == null) return;
 
         mFeed.setTitle(feedTitle);
-        mFeed.setUrl(feedUrl);
+        mFeed.setUrl(feedUrl.startsWith("http") ? feedUrl : "http://" + feedUrl);
         mFeed.setNotificationTitle(notificationTitle);
         mFeed.setNotificationEnabled(notificationEnabled);
 

@@ -113,7 +113,6 @@ public class NewFeedNotifierService extends Service {
 
     public void fetchAndRefreshFeed(final Feed feed, final String title) {
         String url = feed.getUrl();
-        if (!url.startsWith("http")) url = "https://" + url;
 
         Call<RSSFeed> call = RSSFactory.create().getFeed(url);
         Callback<RSSFeed> callback = new Callback<RSSFeed>() {
