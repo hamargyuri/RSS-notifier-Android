@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by hamargyuri on 2017. 06. 05..
@@ -25,7 +26,7 @@ public class RSSItem {
     private String description;
 
     public Date getParsedDate() {
-        DateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+        DateFormat format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
         try {
             return format.parse(dateString);
         } catch (ParseException e) {
