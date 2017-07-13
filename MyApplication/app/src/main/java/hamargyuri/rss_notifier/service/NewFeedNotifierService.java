@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
@@ -53,11 +52,22 @@ public class NewFeedNotifierService extends Service {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                fetchAndRefreshFeed();
+                for (final Feed feed : getAllFeeds()) {
+                    if (feed.getMinutesSinceLastRefresh() >= feed.getRefreshIntervalInMinutes()) {
+                        fetchAndRefreshFeed(feed, feed.getTitle());
+                        feed.setMinutesSinceLastRefresh(0);
+                    } else {
+                        feed.setMinutesSinceLastRefresh(feed.getMinutesSinceLastRefresh()+1);
+                    }
+                    FeedDao feedDao = session.getFeedDao();
+                    feedDao.save(feed);
+                    session.clear();
+                }
             }
         };
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, 0, 300000); //TODO: 5 minutes - make it changeable
+        timer.scheduleAtFixedRate(timerTask, 0, 6000); //1 min global service run interval
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -100,17 +110,8 @@ public class NewFeedNotifierService extends Service {
         session.clear();
     }
 
-    private void fetchAndRefreshFeed() {
-        ArrayList<Feed> feeds = getAllFeeds();
-        if (feeds == null) {
-            return;
-        }
-        for (Feed feed : feeds) {
-            fetch(feed, feed.getTitle());
-        }
-    }
 
-    public void fetch(final Feed feed, final String title) {
+    public void fetchAndRefreshFeed(final Feed feed, final String title) {
         String url = feed.getUrl();
         if (!url.startsWith("http")) url = "https://" + url;
 
