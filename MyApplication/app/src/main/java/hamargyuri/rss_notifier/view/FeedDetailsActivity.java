@@ -184,6 +184,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
         }
         Feed feed = new Feed();
         feed.setPosition(getNumberOfFeeds() + 1);
+        feed.setRefreshIntervalInMinutes(5);
         return feed;
 
     }
