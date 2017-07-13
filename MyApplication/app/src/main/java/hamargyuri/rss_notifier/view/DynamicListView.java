@@ -72,8 +72,9 @@ public class DynamicListView extends ListView {
 
     private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 150;
     private final int MOVE_DURATION = 150;
-    private final int LINE_THICKNESS = 6;
-    private final float LINE_ROUNDNESS = 45.0f;
+    private final int LINE_THICKNESS = 10;
+    private final float LINE_ROUNDNESS = 40.0f;
+    private final int LINE_COLOR = R.color.colorPrimary;
 
     public ArrayList<Feed> mFeedList;
 
@@ -188,7 +189,7 @@ public class DynamicListView extends ListView {
         paint.setStrokeWidth(LINE_THICKNESS);
         CornerPathEffect corEffect = new CornerPathEffect(LINE_ROUNDNESS);
         paint.setPathEffect(corEffect);
-        paint.setColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+        paint.setColor(ContextCompat.getColor(getContext(), LINE_COLOR));
 
         can.drawBitmap(bitmap, 0, 0, null);
         can.drawRect(rect, paint);

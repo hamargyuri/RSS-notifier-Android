@@ -66,6 +66,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
 
     private void swapToViewMode() {
         editMode = false;
+        setTitle(R.string.title_view_feed);
         EditText editTextTitle = (EditText) findViewById(R.id.input_feed_title);
         EditText editTextUrl = (EditText) findViewById(R.id.input_feed_url);
         EditText editTextNotification = (EditText) findViewById(R.id.input_notification_title);
@@ -95,6 +96,7 @@ public class FeedDetailsActivity extends AppCompatActivity{
 
     private void swapToEditMode() {
         editMode = true;
+        setTitle(R.string.title_edit_feed);
         TextView textViewTitle = (TextView) findViewById(R.id.read_feed_title);
         TextView textViewUrl = (TextView) findViewById(R.id.read_feed_url);
         TextView textViewNotification = (TextView) findViewById(R.id.read_notification_title);

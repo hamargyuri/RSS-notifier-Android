@@ -146,6 +146,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corner_button"
+        android:textColor="@color/colorWhite"
         android:onClick="addOrUpdateFeed"
         android:text="@string/button_save_feed"
         app:layout_constraintRight_toRightOf="parent"

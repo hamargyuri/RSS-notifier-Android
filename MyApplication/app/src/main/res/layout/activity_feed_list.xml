@@ -3,7 +3,7 @@
     android:id="@+id/feed_swipe_refresh"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/colorWhite"
+    android:background="@color/colorGray"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="hamargyuri.rss_notifier.view.FeedListActivity"
