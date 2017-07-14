@@ -44,6 +44,10 @@ public class FeedDetailsActivity extends AppCompatActivity{
         Switch notificationSwitch = (Switch) findViewById(R.id.notification_switch);
 
         if (mFeed != null) {
+            mFeed.setNewItemAvailable(false);
+            FeedDao feedDao = session.getFeedDao();
+            feedDao.save(mFeed);
+
             setTitle(R.string.title_edit_feed);
             isNewEntry = false;
 
@@ -257,6 +261,8 @@ public class FeedDetailsActivity extends AppCompatActivity{
         }
         Feed feed = new Feed();
         feed.setPosition(getNumberOfFeeds() + 1);
+        feed.setNewItemAvailable(false);
+
         return feed;
     }
 

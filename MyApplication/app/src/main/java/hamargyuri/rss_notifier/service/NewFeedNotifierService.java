@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
@@ -31,6 +30,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.IsNewItemAvailable;
+import static hamargyuri.rss_notifier.model.FeedDao.Properties.NotificationEnabled;
 import static hamargyuri.rss_notifier.model.FeedDao.Properties.Title;
 
 
@@ -62,13 +63,13 @@ public class NewFeedNotifierService extends Service {
     }
 
     //TODO: dynamic, updatable, etc.
-    public static void sendNotification(Context context, String notificationTitle, String jobDate) {
+    public static void sendNotification(Context context, ArrayList<Feed> feeds) {
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder)
                 new NotificationCompat.Builder(context)
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setSmallIcon(R.drawable.uw_rss_icon)
-                        .setContentTitle(notificationTitle)
-                        .setContentText(jobDate)
+                        .setContentTitle((feeds.size() > 1) ? String.format("%d New Notifications", feeds.size()) : feeds.get(0).getTitle())
+                        .setContentText((feeds.size() > 1) ? joinListByTitle(feeds) : feeds.get(0).getLatestItemDate().toString())
                         .setAutoCancel(true);
 
         Intent resultIntent = new Intent(context, FeedListActivity.class);
@@ -82,6 +83,14 @@ public class NewFeedNotifierService extends Service {
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
+    private static String joinListByTitle(ArrayList<Feed> feeds) {
+        ArrayList<String> feedTitles= new ArrayList<String>();
+        for (Feed feed : feeds) {
+            feedTitles.add(feed.getTitle());
+        }
+        return android.text.TextUtils.join(", ", feedTitles);
+    }
+
     private void refreshLatestFeedItem(RSSItem rssItem, String title, boolean sendNotification) {
         Date latestItemDate = rssItem.getParsedDate();
 
@@ -91,10 +100,9 @@ public class NewFeedNotifierService extends Service {
 
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
+            feed.setIsNewItemAvailable(true);
             feedDao.save(feed);
-            if (sendNotification) {
-                sendNotification(this, feed.getNotificationTitle(), feed.getLatestItemDate().toString());
-            }
+            if (getAllFeedsToNotify().size() > 0) { sendNotification(this, getAllFeedsToNotify()); }
         }
 
         session.clear();
@@ -143,6 +151,16 @@ public class NewFeedNotifierService extends Service {
     public ArrayList<Feed> getAllFeeds(){
         FeedDao feedDao = session.getFeedDao();
         ArrayList<Feed> feeds = new ArrayList<>(feedDao.loadAll());
+        session.clear();
+        return feeds;
+    }
+
+    public ArrayList<Feed> getAllFeedsToNotify(){
+        FeedDao feedDao = session.getFeedDao();
+        ArrayList<Feed> feeds = new ArrayList<Feed>(feedDao.queryBuilder()
+                .where(IsNewItemAvailable.eq(true))
+                .where(NotificationEnabled.eq(true))
+                .list());
         session.clear();
         return feeds;
     }

@@ -24,10 +24,11 @@ public class Feed implements Parcelable {
     private String notificationTitle;
     private boolean notificationEnabled;
     private int position;
+    private boolean isNewItemAvailable;
 
-    @Generated(hash = 679440485)
-    public Feed(Long id, String title, String url, Date latestItemDate,
-            String notificationTitle, boolean notificationEnabled, int position) {
+    @Generated(hash = 988679612)
+    public Feed(Long id, String title, String url, Date latestItemDate, String notificationTitle,
+            boolean notificationEnabled, int position, boolean isNewItemAvailable) {
         this.id = id;
         this.title = title;
         this.url = url;
@@ -35,6 +36,7 @@ public class Feed implements Parcelable {
         this.notificationTitle = notificationTitle;
         this.notificationEnabled = notificationEnabled;
         this.position = position;
+        this.isNewItemAvailable = isNewItemAvailable;
     }
 
     @Generated(hash = 1810414124)
@@ -91,6 +93,10 @@ public class Feed implements Parcelable {
 
     public void setPosition(int position) { this.position = position; }
 
+    public boolean isNewItemAvailable() { return isNewItemAvailable; }
+
+    public void setNewItemAvailable(boolean lastTimeChecked) { this.isNewItemAvailable = lastTimeChecked; }
+
 
     @Override
     public int describeContents() {
@@ -106,6 +112,15 @@ public class Feed implements Parcelable {
         dest.writeString(this.notificationTitle);
         dest.writeByte(this.notificationEnabled ? (byte) 1 : (byte) 0);
         dest.writeInt(this.position);
+        dest.writeByte(this.isNewItemAvailable ? (byte) 1 : (byte) 0);
+    }
+
+    public boolean getIsNewItemAvailable() {
+        return this.isNewItemAvailable;
+    }
+
+    public void setIsNewItemAvailable(boolean isNewItemAvailable) {
+        this.isNewItemAvailable = isNewItemAvailable;
     }
 
     protected Feed(Parcel in) {
@@ -117,6 +132,7 @@ public class Feed implements Parcelable {
         this.notificationTitle = in.readString();
         this.notificationEnabled = in.readByte() != 0;
         this.position = in.readInt();
+        this.isNewItemAvailable = in.readByte() != 0;
     }
 
     public static final Creator<Feed> CREATOR = new Creator<Feed>() {

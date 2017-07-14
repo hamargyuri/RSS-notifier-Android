@@ -9,6 +9,8 @@ import hamargyuri.rss_notifier.model.DaoMaster;
 import hamargyuri.rss_notifier.model.DaoSession;
 import hamargyuri.rss_notifier.service.NewFeedNotifierService;
 
+import static hamargyuri.rss_notifier.model.FeedDao.createTable;
+
 /**
  * Created by hamargyuri on 2017. 06. 07..
  */

@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -50,6 +49,9 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
                     parent, false);
         }
 
+
+
+
         TextView title = (TextView) convertView.findViewById(R.id.feed_title);
         TextView date = (TextView) convertView.findViewById(R.id.feed_update_date);
         TextView relativeTime = (TextView) convertView.findViewById(R.id.feed_relative_time);
@@ -59,6 +61,12 @@ public class FeedAdapter extends ArrayAdapter<Feed> {
         date.setText(feed.getLatestItemDate() != null ? feed.getLatestItemDate().toString() : null);
         relativeTime.setText(feed.getLatestItemDate() != null ? convertToRelativeTime(feed.getLatestItemDate()) : null);
 
+        if(feed.isNewItemAvailable()) {
+            convertView.findViewById(R.id.new_notification_indicator).setVisibility(View.VISIBLE);
+        } else {
+            convertView.findViewById(R.id.new_notification_indicator).setVisibility(View.GONE);
+
+        }
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override

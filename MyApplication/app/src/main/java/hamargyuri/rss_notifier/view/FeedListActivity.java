@@ -71,6 +71,8 @@ public class FeedListActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
+        adapter.notifyDataSetChanged();
+
         listener = new MyOnScrollListener();
         listener.setListView(listView);
         listener.setFeedSwipeRefresh(feedSwipeRefresh);
@@ -103,7 +105,7 @@ public class FeedListActivity extends AppCompatActivity {
         finish();
     }
 
-    private void refreshLatestFeedItem(RSSItem rssItem, String title, boolean sendNotification) {
+    private void refreshLatestFeedItem(RSSItem rssItem, String title) {
         Date latestItemDate = rssItem.getParsedDate();
 
         FeedDao feedDao = session.getFeedDao();
@@ -112,6 +114,7 @@ public class FeedListActivity extends AppCompatActivity {
 
         if (previousDate == null || latestItemDate.after(previousDate)) {
             feed.setLatestItemDate(latestItemDate);
+            feed.setIsNewItemAvailable(true);
             feedDao.save(feed);
         }
         session.clear();
@@ -148,7 +151,7 @@ public class FeedListActivity extends AppCompatActivity {
                     return;
                 }
                 RSSItem latestItem = channel.getItems().get(0);
-                refreshLatestFeedItem(latestItem, title, feed.getNotificationEnabled());
+                refreshLatestFeedItem(latestItem, title);
             }
 
             @Override
